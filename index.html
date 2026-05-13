@@ -1262,6 +1262,7 @@
           autocomplete="off"
           inputmode="numeric"
           pattern="[0-9]*"
+          readonly
         />
         <span class="paid-cursor"></span>
       </div>
@@ -1350,13 +1351,27 @@ let isDark = true;
 // Replace with your deployed Google Apps Script Web App URL
 const GAS_URL = 'https://script.google.com/macros/s/AKfycbwQXDtqUeYc3ecaI4KLI6MHHLXkG1zNckF9VUMvXT9bCJ6us4cGSi5XSR12CjwGwA_G/exec';
 
-// ─── Init ───────────────────────────────────────────────────────
+// ─── Paid Input: suppress native keyboard on mobile ──────────────
+function updatePaidInputMode() {
+  const input = document.getElementById('paidInput');
+  if (!input) return;
+  if (window.innerWidth <= 768) {
+    input.setAttribute('inputmode', 'none');
+    input.setAttribute('readonly', 'readonly');
+  } else {
+    input.setAttribute('inputmode', 'numeric');
+    input.removeAttribute('readonly');
+  }
+}
+
+window.addEventListener('resize', updatePaidInputMode);
 document.addEventListener('DOMContentLoaded', () => {
   renderProducts('fries');
   renderProducts('drinks');
   updateClock();
   setInterval(updateClock, 1000);
   updateOrderNum();
+  updatePaidInputMode();
 });
 
 function updateClock() {
