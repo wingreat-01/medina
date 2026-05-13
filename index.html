@@ -1561,15 +1561,14 @@ function refreshRegister() {
   if (input) input.value = '';
   renderPaid();
   updateChangeDisplay(total);
-  document.getElementById('processBtn').disabled = !(cart.length > 0);
 }
 
 function renderPaid() {
   const val = parseInt(paidRaw) || 0;
 
-  // Sync the input field (only when user isn't actively typing in it)
+  // Always sync the input field
   const input = document.getElementById('paidInput');
-  if (input && document.activeElement !== input) {
+  if (input) {
     input.value = val > 0 ? val : '';
   }
 
@@ -1583,7 +1582,7 @@ function renderPaid() {
 
 function handlePaidInput(rawVal) {
   // Called when user types directly into the input field
-  const digits = rawVal.replace(/\D/g, '');
+  const digits = String(rawVal).replace(/\D/g, '');
   paidRaw = digits === '' ? '0' : (digits.replace(/^0+(\d)/, '$1') || '0');
   const val = parseInt(paidRaw) || 0;
   const total = cart.reduce((s, i) => s + i.product.price * i.qty, 0);
