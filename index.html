@@ -818,7 +818,7 @@
     background: var(--surface2);
     border: 2px solid var(--accent);
     border-radius: var(--radius-sm);
-    padding: 14px 16px;
+    padding: 10px 16px;
     font-family: 'Space Mono', monospace;
     font-size: 26px;
     font-weight: 700;
@@ -827,15 +827,41 @@
     letter-spacing: 0.04em;
     position: relative;
     transition: border-color 0.2s;
+    display: flex;
+    align-items: center;
+    cursor: text;
   }
   .paid-display.insufficient { border-color: var(--red); }
-  .paid-display::after {
-    content: '₱';
-    position: absolute;
-    left: 14px; top: 50%;
-    transform: translateY(-50%);
+  .paid-peso-symbol {
     font-size: 16px;
     color: var(--text3);
+    flex-shrink: 0;
+    margin-right: 6px;
+    font-family: 'Space Mono', monospace;
+  }
+  .paid-display input#paidInput {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    font-family: 'Space Mono', monospace;
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--text);
+    text-align: right;
+    width: 100%;
+    min-width: 0;
+    letter-spacing: 0.04em;
+    -moz-appearance: textfield;
+  }
+  .paid-display input#paidInput::-webkit-outer-spin-button,
+  .paid-display input#paidInput::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  .paid-display input#paidInput::placeholder {
+    color: var(--text3);
+    opacity: 0.6;
   }
   .paid-cursor {
     display: inline-block;
@@ -844,7 +870,9 @@
     margin-left: 2px;
     vertical-align: text-bottom;
     animation: blink 1s step-end infinite;
+    flex-shrink: 0;
   }
+  .paid-display input#paidInput:focus ~ .paid-cursor { opacity: 1; }
   @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
 
   /* Process button */
@@ -1099,8 +1127,20 @@
         <!-- Paid input -->
         <div>
           <div class="register-title" style="margin-bottom:8px;">Enter Cash Received</div>
-          <div class="paid-display" id="paidDisplay">
-            <span id="paidNum">0</span><span class="paid-cursor"></span>
+          <div class="paid-display" id="paidDisplay" onclick="document.getElementById('paidInput').focus()">
+            <span class="paid-peso-symbol">₱</span>
+            <input
+              type="number"
+              id="paidInput"
+              min="0"
+              step="1"
+              placeholder="0"
+              oninput="handlePaidInput(this.value)"
+              onkeydown="handlePaidKeydown(event)"
+              autocomplete="off"
+              inputmode="numeric"
+            />
+            <span class="paid-cursor"></span>
           </div>
         </div>
 
@@ -1498,6 +1538,8 @@ function refreshRegister() {
 
   // Reset paid on each visit
   paidRaw = '0';
+  const input = document.getElementById('paidInput');
+  if (input) input.value = '';
   renderPaid();
   updateChangeDisplay(total);
   document.getElementById('processBtn').disabled = !hasOrder;
@@ -1505,7 +1547,12 @@ function refreshRegister() {
 
 function renderPaid() {
   const val = parseInt(paidRaw) || 0;
-  document.getElementById('paidNum').textContent = val.toLocaleString('en-PH');
+
+  // Sync the input field (only when user isn't actively typing in it)
+  const input = document.getElementById('paidInput');
+  if (input && document.activeElement !== input) {
+    input.value = val > 0 ? val : '';
+  }
 
   const total = cart.reduce((s, i) => s + i.product.price * i.qty, 0);
   const paidDisplay = document.getElementById('paidDisplay');
@@ -1513,6 +1560,21 @@ function renderPaid() {
 
   document.getElementById('regPaidDisplay').textContent = `₱${val.toLocaleString('en-PH', {minimumFractionDigits:2})}`;
   updateChangeDisplay(total, val);
+}
+
+function handlePaidInput(rawVal) {
+  // Called when user types directly into the input field
+  const digits = rawVal.replace(/\D/g, '');
+  paidRaw = digits === '' ? '0' : (digits.replace(/^0+(\d)/, '$1') || '0');
+  const val = parseInt(paidRaw) || 0;
+  const total = cart.reduce((s, i) => s + i.product.price * i.qty, 0);
+  document.getElementById('paidDisplay').classList.toggle('insufficient', val > 0 && val < total);
+  document.getElementById('regPaidDisplay').textContent = `₱${val.toLocaleString('en-PH', {minimumFractionDigits:2})}`;
+  updateChangeDisplay(total, val);
+}
+
+function handlePaidKeydown(e) {
+  if (e.key === 'Enter') processTransaction();
 }
 
 function updateChangeDisplay(total, paid) {
@@ -1547,6 +1609,8 @@ function numpadDel() {
 
 function numpadClear() {
   paidRaw = '0';
+  const input = document.getElementById('paidInput');
+  if (input) input.value = '';
   renderPaid();
 }
 
