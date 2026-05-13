@@ -1220,33 +1220,32 @@
       <div class="paid-display" id="paidDisplay" onclick="document.getElementById('paidInput').focus()">
         <span class="paid-peso-symbol">₱</span>
         <input
-          type="number"
+          type="text"
           id="paidInput"
-          min="0"
-          step="1"
           placeholder="0"
           oninput="handlePaidInput(this.value)"
           onkeydown="handlePaidKeydown(event)"
           autocomplete="off"
           inputmode="numeric"
+          pattern="[0-9]*"
         />
         <span class="paid-cursor"></span>
       </div>
 
       <!-- Numpad -->
       <div class="numpad sidebar-numpad">
-        <button class="numpad-btn" onclick="numpadPress('7')">7</button>
-        <button class="numpad-btn" onclick="numpadPress('8')">8</button>
-        <button class="numpad-btn" onclick="numpadPress('9')">9</button>
-        <button class="numpad-btn" onclick="numpadPress('4')">4</button>
-        <button class="numpad-btn" onclick="numpadPress('5')">5</button>
-        <button class="numpad-btn" onclick="numpadPress('6')">6</button>
-        <button class="numpad-btn" onclick="numpadPress('1')">1</button>
-        <button class="numpad-btn" onclick="numpadPress('2')">2</button>
-        <button class="numpad-btn" onclick="numpadPress('3')">3</button>
-        <button class="numpad-btn zero" onclick="numpadPress('0')">0</button>
-        <button class="numpad-btn del" onclick="numpadDel()">⌫</button>
-        <button class="numpad-btn clear-num" onclick="numpadClear()">CLR</button>
+        <button class="numpad-btn" onmousedown="event.preventDefault()" onclick="numpadPress('7')">7</button>
+        <button class="numpad-btn" onmousedown="event.preventDefault()" onclick="numpadPress('8')">8</button>
+        <button class="numpad-btn" onmousedown="event.preventDefault()" onclick="numpadPress('9')">9</button>
+        <button class="numpad-btn" onmousedown="event.preventDefault()" onclick="numpadPress('4')">4</button>
+        <button class="numpad-btn" onmousedown="event.preventDefault()" onclick="numpadPress('5')">5</button>
+        <button class="numpad-btn" onmousedown="event.preventDefault()" onclick="numpadPress('6')">6</button>
+        <button class="numpad-btn" onmousedown="event.preventDefault()" onclick="numpadPress('1')">1</button>
+        <button class="numpad-btn" onmousedown="event.preventDefault()" onclick="numpadPress('2')">2</button>
+        <button class="numpad-btn" onmousedown="event.preventDefault()" onclick="numpadPress('3')">3</button>
+        <button class="numpad-btn zero" onmousedown="event.preventDefault()" onclick="numpadPress('0')">0</button>
+        <button class="numpad-btn del" onmousedown="event.preventDefault()" onclick="numpadDel()">⌫</button>
+        <button class="numpad-btn clear-num" onmousedown="event.preventDefault()" onclick="numpadClear()">CLR</button>
       </div>
 
       <!-- Process button -->
@@ -1614,22 +1613,24 @@ function updateChangeDisplay(total, paid) {
 }
 
 function numpadPress(digit) {
-  if (paidRaw === '0') paidRaw = digit;
-  else if (paidRaw.length < 8) paidRaw += digit;
-  renderPaid();
+  const input = document.getElementById('paidInput');
+  const cur = input.value.replace(/\D/g, '');
+  if (cur === '0' || cur === '') input.value = digit;
+  else if (cur.length < 8) input.value = cur + digit;
+  handlePaidInput(input.value);
 }
 
 function numpadDel() {
-  if (paidRaw.length <= 1) paidRaw = '0';
-  else paidRaw = paidRaw.slice(0, -1);
-  renderPaid();
+  const input = document.getElementById('paidInput');
+  const cur = input.value.replace(/\D/g, '');
+  input.value = cur.length <= 1 ? '' : cur.slice(0, -1);
+  handlePaidInput(input.value);
 }
 
 function numpadClear() {
-  paidRaw = '0';
   const input = document.getElementById('paidInput');
-  if (input) input.value = '';
-  renderPaid();
+  input.value = '';
+  handlePaidInput('');
 }
 
 function setQuick(amount) {
