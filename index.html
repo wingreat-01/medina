@@ -1506,9 +1506,6 @@ function refreshRegister() {
 function renderPaid() {
   const val = parseInt(paidRaw) || 0;
   document.getElementById('paidNum').textContent = val.toLocaleString('en-PH');
-  document.getElementById('paidDisplay').textContent = '';  // clear
-  document.getElementById('paidDisplay').innerHTML =
-    `<span id="paidNum">${val.toLocaleString('en-PH')}</span><span class="paid-cursor"></span>`;
 
   const total = cart.reduce((s, i) => s + i.product.price * i.qty, 0);
   const paidDisplay = document.getElementById('paidDisplay');
