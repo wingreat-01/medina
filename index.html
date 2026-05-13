@@ -48,6 +48,11 @@
     transition: background 0.3s, color 0.3s;
   }
 
+  /* ─── Mobile base overrides ─── */
+  @media (max-width: 768px) {
+    html, body { height: auto; overflow: auto; }
+  }
+
   /* ─── Layout ─── */
   .app {
     display: grid;
@@ -631,30 +636,59 @@
 
   /* ─── Responsive: Mobile ─── */
   @media (max-width: 768px) {
+    /* Single vertical scroll layout */
     .app {
-      grid-template-columns: 1fr;
-      grid-template-areas:
-        "header"
-        "menu";
+      display: flex;
+      flex-direction: column;
+      height: auto;
+      min-height: 100vh;
     }
+
+    /* Menu panel: natural height, no overflow clip */
+    .menu-panel {
+      overflow: visible;
+      flex-shrink: 0;
+    }
+
+    /* Products area: scrolls naturally with the page */
+    .products-area {
+      overflow: visible;
+      padding: 14px;
+      flex: none;
+    }
+
+    /* Cart panel: inline below products, full width, no slide-over */
     .cart-panel {
       grid-area: unset;
-      position: fixed;
-      right: 0; top: 56px;
-      width: min(360px, 92vw);
-      height: calc(100vh - 56px);
-      z-index: 50;
-      transform: translateX(110%);
-      border-left: 1px solid var(--border);
+      position: static;
+      width: 100%;
+      height: auto;
+      transform: none !important;
+      border-left: none;
+      border-top: 2px solid var(--border);
+      display: flex;
+      padding-bottom: 24px;
     }
-    .cart-panel.open { transform: translateX(0); }
-    .cart-backdrop { display: block; }
-    .cart-backdrop.open { display: block; }
-    .cart-toggle-btn { display: flex; }
+
+    /* cart-items: natural height */
+    .cart-items {
+      overflow: visible;
+      min-height: 60px;
+    }
+
+    /* cart-bottom: no height clipping */
+    .cart-bottom {
+      overflow: visible;
+      max-height: none;
+    }
+
+    /* Hide backdrop and toggle button — no longer needed */
+    .cart-backdrop { display: none !important; }
+    .cart-toggle-btn { display: none !important; }
+
     .time-display { display: none !important; }
     .products-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; }
     .category-tabs { padding: 12px 14px 0; }
-    .products-area { padding: 14px; }
   }
 
   @media (min-width: 900px) {
@@ -1508,6 +1542,8 @@ function updateOrderNum() {
 
 // ─── Mobile Cart Toggle ───────────────────────────────────────────
 function toggleCart(forceState) {
+  // On mobile the cart is always visible (vertical scroll layout), so no slide-over needed.
+  if (window.innerWidth <= 768) return;
   const panel = document.getElementById('cartPanel');
   const backdrop = document.getElementById('cartBackdrop');
   const isOpen = forceState !== undefined ? forceState : !panel.classList.contains('open');
