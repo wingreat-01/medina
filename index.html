@@ -320,6 +320,7 @@
     flex: 1;
     overflow-y: auto;
     padding: 12px;
+    min-height: 80px;
   }
   .cart-items::-webkit-scrollbar { width: 3px; }
   .cart-items::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
@@ -423,11 +424,11 @@
   }
   .remove-btn:hover { background: rgba(255,77,109,0.15); color: var(--red); }
 
-  /* Cart Summary */
   .cart-summary {
     padding: 14px 16px;
     border-top: 1px solid var(--border);
     background: var(--surface);
+    flex-shrink: 0;
   }
 
   .summary-rows { margin-bottom: 12px; }
@@ -1023,6 +1024,59 @@
     display: none;
   }
   .no-order-notice.show { display: block; }
+
+  /* txn list full height variant */
+  .txn-list-full { max-height: none; }
+
+  /* ─── Sidebar Cash Register ─── */
+  .cart-bottom {
+    overflow-y: auto;
+    flex-shrink: 0;
+    max-height: 70%;
+  }
+  .cart-bottom::-webkit-scrollbar { width: 3px; }
+  .cart-bottom::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+  .sidebar-register {
+    border-top: 1px solid var(--border);
+    padding: 14px 14px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    background: var(--surface);
+    flex-shrink: 0;
+  }
+
+  /* Compact display for sidebar */
+  .sidebar-display {
+    padding: 12px 14px 10px !important;
+  }
+  .sidebar-display .display-value { font-size: 17px !important; }
+  .sidebar-display .display-row.change .display-value { font-size: 22px !important; }
+
+  /* Compact quick amounts */
+  .sidebar-quick {
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 6px !important;
+  }
+  .sidebar-quick .quick-btn {
+    padding: 7px 4px !important;
+    font-size: 11px !important;
+  }
+
+  /* Compact numpad */
+  .sidebar-numpad .numpad-btn {
+    padding: 11px 6px !important;
+    font-size: 15px !important;
+  }
+
+  /* Compact paid display in sidebar */
+  .sidebar-register .paid-display {
+    padding: 8px 12px !important;
+  }
+  .sidebar-register .paid-display,
+  .sidebar-register #paidInput {
+    font-size: 22px !important;
+  }
 </style>
 </head>
 <body>
@@ -1081,11 +1135,6 @@
     <!-- Transactions Panel (outside products-area for full height) -->
     <div class="txn-panel" id="panel-txn">
 
-      <!-- No active order notice -->
-      <div class="no-order-notice" id="noOrderNotice">
-        ⚠️ No active order. Go to Fries or Drinks to add items first.
-      </div>
-
       <!-- Day Summary Stats -->
       <div class="txn-summary-bar">
         <div class="summary-stat">
@@ -1102,92 +1151,13 @@
         </div>
       </div>
 
-      <!-- Cash Register Card -->
-      <div class="register-card">
-        <div class="register-title">🖩 Cash Register</div>
-
-        <!-- Display screen -->
-        <div class="register-display">
-          <div class="display-row total">
-            <span class="display-label">Amount Due</span>
-            <span class="display-value" id="regTotal">₱0.00</span>
-          </div>
-          <div class="display-divider"></div>
-          <div class="display-row">
-            <span class="display-label">Cash Paid</span>
-            <span class="display-value" id="regPaidDisplay">₱0.00</span>
-          </div>
-          <div class="display-divider"></div>
-          <div class="display-row change">
-            <span class="display-label">Change</span>
-            <span class="display-value zero" id="regChange">₱0.00</span>
-          </div>
-        </div>
-
-        <!-- Paid input -->
-        <div>
-          <div class="register-title" style="margin-bottom:8px;">Enter Cash Received</div>
-          <div class="paid-display" id="paidDisplay" onclick="document.getElementById('paidInput').focus()">
-            <span class="paid-peso-symbol">₱</span>
-            <input
-              type="number"
-              id="paidInput"
-              min="0"
-              step="1"
-              placeholder="0"
-              oninput="handlePaidInput(this.value)"
-              onkeydown="handlePaidKeydown(event)"
-              autocomplete="off"
-              inputmode="numeric"
-            />
-            <span class="paid-cursor"></span>
-          </div>
-        </div>
-
-        <!-- Quick amount shortcuts -->
-        <div>
-          <div class="register-title" style="margin-bottom:8px;">Quick Amounts</div>
-          <div class="quick-amounts" id="quickAmounts">
-            <button class="quick-btn exact" onclick="setExact()">Exact</button>
-            <button class="quick-btn" onclick="setQuick(20)">₱20</button>
-            <button class="quick-btn" onclick="setQuick(50)">₱50</button>
-            <button class="quick-btn" onclick="setQuick(100)">₱100</button>
-            <button class="quick-btn" onclick="setQuick(200)">₱200</button>
-            <button class="quick-btn" onclick="setQuick(500)">₱500</button>
-            <button class="quick-btn" onclick="setQuick(1000)">₱1000</button>
-            <button class="quick-btn" onclick="setQuick(2000)">₱2000</button>
-          </div>
-        </div>
-
-        <!-- Numpad -->
-        <div class="numpad">
-          <button class="numpad-btn" onclick="numpadPress('7')">7</button>
-          <button class="numpad-btn" onclick="numpadPress('8')">8</button>
-          <button class="numpad-btn" onclick="numpadPress('9')">9</button>
-          <button class="numpad-btn" onclick="numpadPress('4')">4</button>
-          <button class="numpad-btn" onclick="numpadPress('5')">5</button>
-          <button class="numpad-btn" onclick="numpadPress('6')">6</button>
-          <button class="numpad-btn" onclick="numpadPress('1')">1</button>
-          <button class="numpad-btn" onclick="numpadPress('2')">2</button>
-          <button class="numpad-btn" onclick="numpadPress('3')">3</button>
-          <button class="numpad-btn zero" onclick="numpadPress('0')">0</button>
-          <button class="numpad-btn del" onclick="numpadDel()">⌫</button>
-          <button class="numpad-btn clear-num" onclick="numpadClear()">CLR</button>
-        </div>
-
-        <!-- Process button -->
-        <button class="btn-process" id="processBtn" onclick="processTransaction()" disabled>
-          ✓ Process Payment
-        </button>
-      </div>
-
-      <!-- Transaction History -->
+      <!-- Transaction History (full-width, no height cap) -->
       <div class="txn-history-card">
         <div class="txn-history-header">
           <span class="txn-history-title">📋 Transaction History</span>
           <span class="txn-count-badge" id="txnCountBadge">0 txns</span>
         </div>
-        <div class="txn-list" id="txnList">
+        <div class="txn-list txn-list-full" id="txnList">
           <div class="txn-empty">
             <div class="txn-empty-icon">🧾</div>
             No transactions yet today.
@@ -1212,6 +1182,7 @@
       </div>
     </div>
 
+    <div class="cart-bottom" id="cartBottom">
     <div class="cart-summary">
       <div class="summary-rows">
         <div class="summary-row">
@@ -1224,14 +1195,79 @@
         <span class="total-amount" id="totalAmount">₱0.00</span>
       </div>
       <div class="cart-actions">
-        <button class="btn-checkout" id="checkoutBtn" onclick="openCheckout()" disabled>
-          ✓ Checkout
-        </button>
         <button class="btn-clear" id="clearBtn" onclick="clearOrder()" disabled>
           🗑 Clear Order
         </button>
       </div>
     </div>
+
+    <!-- ── Inline Cash Register ── -->
+    <div class="sidebar-register" id="sidebarRegister">
+
+      <div class="register-display sidebar-display">
+        <div class="display-row">
+          <span class="display-label">Cash Paid</span>
+          <span class="display-value" id="regPaidDisplay">₱0.00</span>
+        </div>
+        <div class="display-divider"></div>
+        <div class="display-row change">
+          <span class="display-label">Change</span>
+          <span class="display-value zero" id="regChange">₱0.00</span>
+        </div>
+      </div>
+
+      <!-- Paid input -->
+      <div class="paid-display" id="paidDisplay" onclick="document.getElementById('paidInput').focus()">
+        <span class="paid-peso-symbol">₱</span>
+        <input
+          type="number"
+          id="paidInput"
+          min="0"
+          step="1"
+          placeholder="0"
+          oninput="handlePaidInput(this.value)"
+          onkeydown="handlePaidKeydown(event)"
+          autocomplete="off"
+          inputmode="numeric"
+        />
+        <span class="paid-cursor"></span>
+      </div>
+
+      <!-- Quick amounts -->
+      <div class="quick-amounts sidebar-quick">
+        <button class="quick-btn exact" onclick="setExact()">Exact</button>
+        <button class="quick-btn" onclick="setQuick(20)">₱20</button>
+        <button class="quick-btn" onclick="setQuick(50)">₱50</button>
+        <button class="quick-btn" onclick="setQuick(100)">₱100</button>
+        <button class="quick-btn" onclick="setQuick(200)">₱200</button>
+        <button class="quick-btn" onclick="setQuick(500)">₱500</button>
+        <button class="quick-btn" onclick="setQuick(1000)">₱1000</button>
+        <button class="quick-btn" onclick="setQuick(2000)">₱2000</button>
+      </div>
+
+      <!-- Numpad -->
+      <div class="numpad sidebar-numpad">
+        <button class="numpad-btn" onclick="numpadPress('7')">7</button>
+        <button class="numpad-btn" onclick="numpadPress('8')">8</button>
+        <button class="numpad-btn" onclick="numpadPress('9')">9</button>
+        <button class="numpad-btn" onclick="numpadPress('4')">4</button>
+        <button class="numpad-btn" onclick="numpadPress('5')">5</button>
+        <button class="numpad-btn" onclick="numpadPress('6')">6</button>
+        <button class="numpad-btn" onclick="numpadPress('1')">1</button>
+        <button class="numpad-btn" onclick="numpadPress('2')">2</button>
+        <button class="numpad-btn" onclick="numpadPress('3')">3</button>
+        <button class="numpad-btn zero" onclick="numpadPress('0')">0</button>
+        <button class="numpad-btn del" onclick="numpadDel()">⌫</button>
+        <button class="numpad-btn clear-num" onclick="numpadClear()">CLR</button>
+      </div>
+
+      <!-- Process button -->
+      <button class="btn-process" id="processBtn" onclick="processTransaction()" disabled>
+        ✓ Process Payment
+      </button>
+
+    </div><!-- end sidebar-register -->
+    </div><!-- end cart-bottom -->
   </aside>
 </div>
 
@@ -1403,9 +1439,11 @@ function updateCart() {
   // Totals & buttons
   document.getElementById('totalAmount').textContent = `₱${total.toFixed(2)}`;
   document.getElementById('itemCount').textContent = count;
-  document.getElementById('checkoutBtn').disabled = cart.length === 0;
   document.getElementById('clearBtn').disabled = cart.length === 0;
   document.getElementById('cartBadge').textContent = count;
+
+  // Keep register in sync whenever cart changes
+  refreshRegister();
 }
 
 function updateCardState(productId, forceState) {
@@ -1513,9 +1551,6 @@ function switchToTransactions(tab) {
   const txnPanel = document.getElementById('panel-txn');
   productsArea.style.display = 'none';
   txnPanel.classList.add('active');
-
-  // Sync total from cart
-  refreshRegister();
 }
 
 function switchCategory(category, tab) {
@@ -1531,18 +1566,14 @@ function switchCategory(category, tab) {
 
 function refreshRegister() {
   const total = cart.reduce((s, i) => s + i.product.price * i.qty, 0);
-  const hasOrder = cart.length > 0;
 
-  document.getElementById('noOrderNotice').classList.toggle('show', !hasOrder);
-  document.getElementById('regTotal').textContent = `₱${total.toFixed(2)}`;
-
-  // Reset paid on each visit
+  // Reset paid on each cart change
   paidRaw = '0';
   const input = document.getElementById('paidInput');
   if (input) input.value = '';
   renderPaid();
   updateChangeDisplay(total);
-  document.getElementById('processBtn').disabled = !hasOrder;
+  document.getElementById('processBtn').disabled = !(cart.length > 0);
 }
 
 function renderPaid() {
