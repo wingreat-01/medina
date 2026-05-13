@@ -1589,6 +1589,9 @@ function switchToTransactions(tab) {
   const txnPanel = document.getElementById('panel-txn');
   productsArea.style.display = 'none';
   txnPanel.classList.add('active');
+
+  // Fetch persisted transactions from the sheet
+  fetchSheetTransactions();
 }
 
 function switchCategory(category, tab) {
@@ -1733,6 +1736,8 @@ async function autoConfirmTransaction(txn) {
       subtotal: product.price * qty
     })),
     total: txn.total,
+    paid: txn.paid,
+    change: txn.change,
     timestamp: new Date().toISOString()
   };
 
@@ -1760,18 +1765,63 @@ async function autoConfirmTransaction(txn) {
   refreshRegister();
 }
 
-function renderTransactionHistory() {
-  const list = document.getElementById('txnList');
-  const badge = document.getElementById('txnCountBadge');
-  badge.textContent = `${transactions.length} txn${transactions.length !== 1 ? 's' : ''}`;
+// ─── Fetch transactions from the Google Sheet ────────────────────
+let sheetTransactions = [];   // rows fetched from the Transactions sheet
+let isFetchingSheet = false;
 
-  if (transactions.length === 0) {
+async function fetchSheetTransactions() {
+  if (!GAS_URL || GAS_URL === 'YOUR_GAS_WEB_APP_URL_HERE') return;
+
+  // Show a loading state
+  const list = document.getElementById('txnList');
+  list.innerHTML = `<div class="txn-empty"><div class="txn-empty-icon">⏳</div>Loading from sheet…</div>`;
+  isFetchingSheet = true;
+
+  try {
+    const res  = await fetch(GAS_URL + '?action=transactions');
+    const json = await res.json();
+    if (json.success && Array.isArray(json.transactions)) {
+      // Convert sheet rows to the same shape used by the local `transactions` array.
+      // Sheet columns: orderNum, time, items, total, paid, change
+      sheetTransactions = json.transactions.map(r => ({
+        orderNum : r.orderNum,
+        time     : r.time,
+        items    : r.items,
+        total    : parseFloat(r.total)  || 0,
+        paid     : parseFloat(r.paid)   || 0,
+        change   : parseFloat(r.change) || 0,
+        fromSheet: true
+      }));
+    }
+  } catch (e) {
+    console.warn('Could not fetch transactions from sheet:', e);
+    sheetTransactions = [];
+  }
+
+  isFetchingSheet = false;
+  renderTransactionHistory();
+}
+
+function renderTransactionHistory() {
+  const list  = document.getElementById('txnList');
+  const badge = document.getElementById('txnCountBadge');
+
+  // Merge: sheet rows first (oldest→newest), then this-session rows on top.
+  // De-dupe by orderNum so a just-processed order doesn't appear twice.
+  const sessionOrderNums = new Set(transactions.map(t => String(t.orderNum)));
+  const filteredSheet    = sheetTransactions.filter(t => !sessionOrderNums.has(String(t.orderNum)));
+  // Combined list newest-first: session rows already newest-first; sheet rows are oldest-first so reverse them.
+  const combined = [...transactions, ...filteredSheet.reverse()];
+
+  badge.textContent = `${combined.length} txn${combined.length !== 1 ? 's' : ''}`;
+
+  if (combined.length === 0) {
     list.innerHTML = `<div class="txn-empty"><div class="txn-empty-icon">🧾</div>No transactions yet today.</div>`;
-    updateDayStats();
+    updateDayStats(combined);
     return;
   }
 
-  list.innerHTML = transactions.map(t => `
+  list.innerHTML = combined.map(t => `
     <div class="txn-row">
       <span class="txn-row-num">#${String(t.orderNum).padStart(3,'0')}</span>
       <div class="txn-row-info">
@@ -1779,22 +1829,24 @@ function renderTransactionHistory() {
         <div class="txn-row-items">${t.items}</div>
       </div>
       <div class="txn-row-amounts">
-        <div class="txn-row-total">₱${t.total.toFixed(2)}</div>
-        <div class="txn-row-change">chg ₱${t.change.toFixed(2)}</div>
+        <div class="txn-row-total">₱${Number(t.total).toFixed(2)}</div>
+        <div class="txn-row-change">chg ₱${Number(t.change).toFixed(2)}</div>
       </div>
     </div>
   `).join('');
 
-  updateDayStats();
+  updateDayStats(combined);
 }
 
-function updateDayStats() {
-  const count = transactions.length;
-  const totalSales = transactions.reduce((s, t) => s + t.total, 0);
+function updateDayStats(combined) {
+  // Accept optional combined array so we don't re-compute it
+  const list = combined || transactions;
+  const count = list.length;
+  const totalSales = list.reduce((s, t) => s + (Number(t.total) || 0), 0);
   const avg = count > 0 ? totalSales / count : 0;
   document.getElementById('statOrders').textContent = count;
-  document.getElementById('statSales').textContent = `₱${totalSales.toFixed(0)}`;
-  document.getElementById('statAvg').textContent = `₱${avg.toFixed(0)}`;
+  document.getElementById('statSales').textContent  = `₱${totalSales.toFixed(0)}`;
+  document.getElementById('statAvg').textContent    = `₱${avg.toFixed(0)}`;
 }
 
 let toastTimer;
