@@ -663,6 +663,338 @@
 
   /* ─── Scrollbar global ─── */
   * { scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
+
+  /* ─── Transactions Tab Panel ─── */
+  .txn-panel {
+    display: none;
+    flex-direction: column;
+    gap: 20px;
+    padding: 24px 20px;
+    overflow-y: auto;
+    flex: 1;
+  }
+  .txn-panel.active { display: flex; }
+
+  /* Cash Register Card */
+  .register-card {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+  .register-title {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text3);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* Display */
+  .register-display {
+    background: #0a0a0e;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 20px 20px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .light .register-display { background: #e8e7ef; }
+  .display-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+  .display-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    color: var(--text3);
+    text-transform: uppercase;
+  }
+  .display-value {
+    font-family: 'Space Mono', monospace;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text2);
+  }
+  .display-row.total .display-value {
+    font-size: 28px;
+    color: var(--accent);
+  }
+  .display-row.change .display-value {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--green);
+    transition: color 0.2s;
+  }
+  .display-row.change .display-value.negative { color: var(--red); }
+  .display-row.change .display-value.zero { color: var(--text3); }
+
+  /* Divider */
+  .display-divider {
+    height: 1px;
+    background: var(--border);
+    margin: 4px 0;
+    opacity: 0.5;
+  }
+
+  /* Quick amount buttons */
+  .quick-amounts {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+  }
+  .quick-btn {
+    padding: 10px 6px;
+    background: var(--surface2);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-align: center;
+  }
+  .quick-btn:hover { background: var(--accent); border-color: var(--accent); color: #111; }
+  .quick-btn:active { transform: scale(0.95); }
+  .quick-btn.exact {
+    background: rgba(76,222,143,0.1);
+    border-color: var(--green);
+    color: var(--green);
+  }
+  .quick-btn.exact:hover { background: var(--green); color: #111; }
+
+  /* Numpad */
+  .numpad {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+  .numpad-btn {
+    padding: 16px 8px;
+    background: var(--surface2);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    font-family: 'Space Mono', monospace;
+    font-size: 18px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-align: center;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .numpad-btn:hover { background: var(--surface3); border-color: var(--accent); }
+  .numpad-btn:active { transform: scale(0.93); }
+  .numpad-btn.zero { grid-column: span 2; }
+  .numpad-btn.del {
+    background: rgba(255,77,109,0.08);
+    border-color: rgba(255,77,109,0.3);
+    color: var(--red);
+    font-size: 20px;
+  }
+  .numpad-btn.del:hover { background: rgba(255,77,109,0.18); }
+  .numpad-btn.clear-num {
+    background: rgba(255,107,53,0.08);
+    border-color: rgba(255,107,53,0.3);
+    color: var(--accent2);
+    font-size: 13px;
+  }
+  .numpad-btn.clear-num:hover { background: rgba(255,107,53,0.18); }
+
+  /* Paid input display */
+  .paid-display {
+    background: var(--surface2);
+    border: 2px solid var(--accent);
+    border-radius: var(--radius-sm);
+    padding: 14px 16px;
+    font-family: 'Space Mono', monospace;
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--text);
+    text-align: right;
+    letter-spacing: 0.04em;
+    position: relative;
+    transition: border-color 0.2s;
+  }
+  .paid-display.insufficient { border-color: var(--red); }
+  .paid-display::after {
+    content: '₱';
+    position: absolute;
+    left: 14px; top: 50%;
+    transform: translateY(-50%);
+    font-size: 16px;
+    color: var(--text3);
+  }
+  .paid-cursor {
+    display: inline-block;
+    width: 2px; height: 1.2em;
+    background: var(--accent);
+    margin-left: 2px;
+    vertical-align: text-bottom;
+    animation: blink 1s step-end infinite;
+  }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+  /* Process button */
+  .btn-process {
+    padding: 16px;
+    background: var(--green);
+    color: #111;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    transition: all 0.18s;
+    font-family: 'DM Sans', sans-serif;
+    letter-spacing: 0.02em;
+  }
+  .btn-process:hover:not(:disabled) { background: #5febb2; transform: translateY(-1px); box-shadow: 0 4px 16px rgba(76,222,143,0.3); }
+  .btn-process:active:not(:disabled) { transform: scale(0.98); }
+  .btn-process:disabled { opacity: 0.35; cursor: not-allowed; }
+
+  /* Transaction History */
+  .txn-history-card {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  .txn-history-header {
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .txn-history-title {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text3);
+  }
+  .txn-count-badge {
+    background: rgba(245,200,66,0.12);
+    color: var(--accent);
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 20px;
+  }
+  .txn-list { max-height: 320px; overflow-y: auto; }
+  .txn-empty {
+    padding: 32px 20px;
+    text-align: center;
+    color: var(--text3);
+    font-size: 13px;
+  }
+  .txn-empty .txn-empty-icon { font-size: 28px; margin-bottom: 8px; opacity: 0.4; }
+  .txn-row {
+    display: flex;
+    align-items: center;
+    padding: 12px 18px;
+    border-bottom: 1px solid var(--border);
+    gap: 12px;
+    animation: slideIn 0.2s ease;
+    transition: background 0.15s;
+  }
+  .txn-row:last-child { border-bottom: none; }
+  .txn-row:hover { background: var(--surface2); }
+  .txn-row-num {
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    color: var(--accent);
+    min-width: 40px;
+  }
+  .txn-row-info { flex: 1; }
+  .txn-row-time {
+    font-size: 11px;
+    color: var(--text3);
+    font-family: 'Space Mono', monospace;
+  }
+  .txn-row-items {
+    font-size: 12px;
+    color: var(--text2);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 200px;
+  }
+  .txn-row-amounts {
+    text-align: right;
+    flex-shrink: 0;
+  }
+  .txn-row-total {
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text);
+  }
+  .txn-row-change {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--green);
+  }
+
+  /* Day summary */
+  .txn-summary-bar {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 4px;
+  }
+  .summary-stat {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 14px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .stat-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text3);
+  }
+  .stat-value {
+    font-family: 'Space Mono', monospace;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--accent);
+  }
+  .stat-value.green { color: var(--green); }
+  .stat-value.orange { color: var(--accent2); }
+
+  /* No order warning */
+  .no-order-notice {
+    background: rgba(255,107,53,0.08);
+    border: 1.5px solid rgba(255,107,53,0.25);
+    border-radius: var(--radius-sm);
+    padding: 14px 18px;
+    font-size: 13px;
+    color: var(--accent2);
+    text-align: center;
+    display: none;
+  }
+  .no-order-notice.show { display: block; }
 </style>
 </head>
 <body>
@@ -698,6 +1030,9 @@
       <button class="cat-tab" onclick="switchCategory('drinks', this)">
         <span class="cat-icon">🥤</span> Drinks
       </button>
+      <button class="cat-tab" id="txnTab" onclick="switchToTransactions(this)">
+        <span class="cat-icon">💵</span> Transactions
+      </button>
     </div>
 
     <!-- Products -->
@@ -714,6 +1049,113 @@
         <div class="products-grid" id="grid-drinks"></div>
       </div>
     </div>
+
+    <!-- Transactions Panel (outside products-area for full height) -->
+    <div class="txn-panel" id="panel-txn">
+
+      <!-- No active order notice -->
+      <div class="no-order-notice" id="noOrderNotice">
+        ⚠️ No active order. Go to Fries or Drinks to add items first.
+      </div>
+
+      <!-- Day Summary Stats -->
+      <div class="txn-summary-bar">
+        <div class="summary-stat">
+          <span class="stat-label">Orders Today</span>
+          <span class="stat-value" id="statOrders">0</span>
+        </div>
+        <div class="summary-stat">
+          <span class="stat-label">Total Sales</span>
+          <span class="stat-value green" id="statSales">₱0</span>
+        </div>
+        <div class="summary-stat">
+          <span class="stat-label">Avg Order</span>
+          <span class="stat-value orange" id="statAvg">₱0</span>
+        </div>
+      </div>
+
+      <!-- Cash Register Card -->
+      <div class="register-card">
+        <div class="register-title">🖩 Cash Register</div>
+
+        <!-- Display screen -->
+        <div class="register-display">
+          <div class="display-row total">
+            <span class="display-label">Amount Due</span>
+            <span class="display-value" id="regTotal">₱0.00</span>
+          </div>
+          <div class="display-divider"></div>
+          <div class="display-row">
+            <span class="display-label">Cash Paid</span>
+            <span class="display-value" id="regPaidDisplay">₱0.00</span>
+          </div>
+          <div class="display-divider"></div>
+          <div class="display-row change">
+            <span class="display-label">Change</span>
+            <span class="display-value zero" id="regChange">₱0.00</span>
+          </div>
+        </div>
+
+        <!-- Paid input -->
+        <div>
+          <div class="register-title" style="margin-bottom:8px;">Enter Cash Received</div>
+          <div class="paid-display" id="paidDisplay">
+            <span id="paidNum">0</span><span class="paid-cursor"></span>
+          </div>
+        </div>
+
+        <!-- Quick amount shortcuts -->
+        <div>
+          <div class="register-title" style="margin-bottom:8px;">Quick Amounts</div>
+          <div class="quick-amounts" id="quickAmounts">
+            <button class="quick-btn exact" onclick="setExact()">Exact</button>
+            <button class="quick-btn" onclick="setQuick(20)">₱20</button>
+            <button class="quick-btn" onclick="setQuick(50)">₱50</button>
+            <button class="quick-btn" onclick="setQuick(100)">₱100</button>
+            <button class="quick-btn" onclick="setQuick(200)">₱200</button>
+            <button class="quick-btn" onclick="setQuick(500)">₱500</button>
+            <button class="quick-btn" onclick="setQuick(1000)">₱1000</button>
+            <button class="quick-btn" onclick="setQuick(2000)">₱2000</button>
+          </div>
+        </div>
+
+        <!-- Numpad -->
+        <div class="numpad">
+          <button class="numpad-btn" onclick="numpadPress('7')">7</button>
+          <button class="numpad-btn" onclick="numpadPress('8')">8</button>
+          <button class="numpad-btn" onclick="numpadPress('9')">9</button>
+          <button class="numpad-btn" onclick="numpadPress('4')">4</button>
+          <button class="numpad-btn" onclick="numpadPress('5')">5</button>
+          <button class="numpad-btn" onclick="numpadPress('6')">6</button>
+          <button class="numpad-btn" onclick="numpadPress('1')">1</button>
+          <button class="numpad-btn" onclick="numpadPress('2')">2</button>
+          <button class="numpad-btn" onclick="numpadPress('3')">3</button>
+          <button class="numpad-btn zero" onclick="numpadPress('0')">0</button>
+          <button class="numpad-btn del" onclick="numpadDel()">⌫</button>
+          <button class="numpad-btn clear-num" onclick="numpadClear()">CLR</button>
+        </div>
+
+        <!-- Process button -->
+        <button class="btn-process" id="processBtn" onclick="processTransaction()" disabled>
+          ✓ Process Payment
+        </button>
+      </div>
+
+      <!-- Transaction History -->
+      <div class="txn-history-card">
+        <div class="txn-history-header">
+          <span class="txn-history-title">📋 Transaction History</span>
+          <span class="txn-count-badge" id="txnCountBadge">0 txns</span>
+        </div>
+        <div class="txn-list" id="txnList">
+          <div class="txn-empty">
+            <div class="txn-empty-icon">🧾</div>
+            No transactions yet today.
+          </div>
+        </div>
+      </div>
+
+    </div><!-- end txn-panel -->
   </main>
 
   <!-- Cart Panel -->
@@ -842,13 +1284,6 @@ function renderProducts(category) {
     `;
     grid.appendChild(card);
   });
-}
-
-function switchCategory(category, tab) {
-  document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.category-panel').forEach(p => p.classList.remove('active'));
-  tab.classList.add('active');
-  document.getElementById('panel-' + category).classList.add('active');
 }
 
 // ─── Cart ────────────────────────────────────────────────────────
@@ -1023,7 +1458,214 @@ function toggleTheme() {
   document.getElementById('themeLabel').textContent = isDark ? 'Light' : 'Dark';
 }
 
-// ─── Toast ───────────────────────────────────────────────────────
+// ─── Transactions Tab ────────────────────────────────────────────
+let paidRaw = '0';           // string digits, no decimals for simplicity
+let transactions = [];       // [{ orderNum, items, total, paid, change, time }]
+
+function switchToTransactions(tab) {
+  // Deactivate other tabs
+  document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.category-panel').forEach(p => p.classList.remove('active'));
+  tab.classList.add('active');
+
+  // Show txn panel (it's outside products-area, handle manually)
+  const productsArea = document.querySelector('.products-area');
+  const txnPanel = document.getElementById('panel-txn');
+  productsArea.style.display = 'none';
+  txnPanel.classList.add('active');
+
+  // Sync total from cart
+  refreshRegister();
+}
+
+function switchCategory(category, tab) {
+  // Hide txn panel, show products area
+  document.querySelector('.products-area').style.display = '';
+  document.getElementById('panel-txn').classList.remove('active');
+
+  document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.category-panel').forEach(p => p.classList.remove('active'));
+  tab.classList.add('active');
+  document.getElementById('panel-' + category).classList.add('active');
+}
+
+function refreshRegister() {
+  const total = cart.reduce((s, i) => s + i.product.price * i.qty, 0);
+  const hasOrder = cart.length > 0;
+
+  document.getElementById('noOrderNotice').classList.toggle('show', !hasOrder);
+  document.getElementById('regTotal').textContent = `₱${total.toFixed(2)}`;
+
+  // Reset paid on each visit
+  paidRaw = '0';
+  renderPaid();
+  updateChangeDisplay(total);
+  document.getElementById('processBtn').disabled = !hasOrder;
+}
+
+function renderPaid() {
+  const val = parseInt(paidRaw) || 0;
+  document.getElementById('paidNum').textContent = val.toLocaleString('en-PH');
+  document.getElementById('paidDisplay').textContent = '';  // clear
+  document.getElementById('paidDisplay').innerHTML =
+    `<span id="paidNum">${val.toLocaleString('en-PH')}</span><span class="paid-cursor"></span>`;
+
+  const total = cart.reduce((s, i) => s + i.product.price * i.qty, 0);
+  const paidDisplay = document.getElementById('paidDisplay');
+  paidDisplay.classList.toggle('insufficient', val > 0 && val < total);
+
+  document.getElementById('regPaidDisplay').textContent = `₱${val.toLocaleString('en-PH', {minimumFractionDigits:2})}`;
+  updateChangeDisplay(total, val);
+}
+
+function updateChangeDisplay(total, paid) {
+  if (paid === undefined) paid = parseInt(paidRaw) || 0;
+  const change = paid - total;
+  const el = document.getElementById('regChange');
+  el.textContent = `₱${Math.abs(change).toLocaleString('en-PH', {minimumFractionDigits:2})}`;
+  el.className = 'display-value';
+  if (paid === 0 || (paid === 0 && total === 0)) {
+    el.classList.add('zero');
+  } else if (change < 0) {
+    el.textContent = `−₱${Math.abs(change).toLocaleString('en-PH', {minimumFractionDigits:2})}`;
+    el.classList.add('negative');
+  } else {
+    el.classList.add('');
+  }
+  // Enable process only if paid >= total and there's an order
+  document.getElementById('processBtn').disabled = !(cart.length > 0 && paid >= total && total > 0);
+}
+
+function numpadPress(digit) {
+  if (paidRaw === '0') paidRaw = digit;
+  else if (paidRaw.length < 8) paidRaw += digit;
+  renderPaid();
+}
+
+function numpadDel() {
+  if (paidRaw.length <= 1) paidRaw = '0';
+  else paidRaw = paidRaw.slice(0, -1);
+  renderPaid();
+}
+
+function numpadClear() {
+  paidRaw = '0';
+  renderPaid();
+}
+
+function setQuick(amount) {
+  paidRaw = String(amount);
+  renderPaid();
+}
+
+function setExact() {
+  const total = cart.reduce((s, i) => s + i.product.price * i.qty, 0);
+  paidRaw = String(Math.ceil(total));
+  renderPaid();
+}
+
+function processTransaction() {
+  const total = cart.reduce((s, i) => s + i.product.price * i.qty, 0);
+  const paid = parseInt(paidRaw) || 0;
+  if (paid < total || cart.length === 0) return;
+
+  const change = paid - total;
+  const now = new Date();
+  const timeStr = now.toLocaleTimeString('en-PH', { hour: '2-digit', minute: '2-digit' });
+
+  const txn = {
+    orderNum,
+    items: cart.map(i => `${i.product.name}×${i.qty}`).join(', '),
+    total,
+    paid,
+    change,
+    time: timeStr
+  };
+  transactions.unshift(txn);   // newest first
+
+  // Show change confirmation toast
+  showToast(`✅ Change: ₱${change.toLocaleString('en-PH', {minimumFractionDigits:2})}`);
+
+  // Also trigger the normal checkout flow (save to GAS, increment order#)
+  // Silently auto-confirm:
+  autoConfirmTransaction(txn);
+}
+
+async function autoConfirmTransaction(txn) {
+  // Build order data and send to GAS
+  const orderData = {
+    orderNum,
+    items: cart.map(({ product, qty }) => ({
+      name: product.name,
+      qty,
+      price: product.price,
+      subtotal: product.price * qty
+    })),
+    total: txn.total,
+    timestamp: new Date().toISOString()
+  };
+
+  closeModal(); // close if open
+
+  if (GAS_URL && GAS_URL !== 'YOUR_GAS_WEB_APP_URL_HERE') {
+    try {
+      await fetch(GAS_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(orderData)
+      });
+    } catch (e) {
+      console.warn('Backend save failed:', e);
+    }
+  }
+
+  orderNum++;
+  updateOrderNum();
+  clearOrder();
+
+  // Update history UI
+  renderTransactionHistory();
+  refreshRegister();
+}
+
+function renderTransactionHistory() {
+  const list = document.getElementById('txnList');
+  const badge = document.getElementById('txnCountBadge');
+  badge.textContent = `${transactions.length} txn${transactions.length !== 1 ? 's' : ''}`;
+
+  if (transactions.length === 0) {
+    list.innerHTML = `<div class="txn-empty"><div class="txn-empty-icon">🧾</div>No transactions yet today.</div>`;
+    updateDayStats();
+    return;
+  }
+
+  list.innerHTML = transactions.map(t => `
+    <div class="txn-row">
+      <span class="txn-row-num">#${String(t.orderNum).padStart(3,'0')}</span>
+      <div class="txn-row-info">
+        <div class="txn-row-time">${t.time}</div>
+        <div class="txn-row-items">${t.items}</div>
+      </div>
+      <div class="txn-row-amounts">
+        <div class="txn-row-total">₱${t.total.toFixed(2)}</div>
+        <div class="txn-row-change">chg ₱${t.change.toFixed(2)}</div>
+      </div>
+    </div>
+  `).join('');
+
+  updateDayStats();
+}
+
+function updateDayStats() {
+  const count = transactions.length;
+  const totalSales = transactions.reduce((s, t) => s + t.total, 0);
+  const avg = count > 0 ? totalSales / count : 0;
+  document.getElementById('statOrders').textContent = count;
+  document.getElementById('statSales').textContent = `₱${totalSales.toFixed(0)}`;
+  document.getElementById('statAvg').textContent = `₱${avg.toFixed(0)}`;
+}
+
 let toastTimer;
 function showToast(msg) {
   const toast = document.getElementById('toast');
