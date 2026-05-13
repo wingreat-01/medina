@@ -1606,7 +1606,7 @@ function updateChangeDisplay(total, paid) {
     el.textContent = `−₱${Math.abs(change).toLocaleString('en-PH', {minimumFractionDigits:2})}`;
     el.classList.add('negative');
   } else {
-    el.classList.add('');
+    el.classList.add('positive');
   }
   // Enable process only if paid >= total and there's an order
   document.getElementById('processBtn').disabled = !(cart.length > 0 && paid >= total && total > 0);
