@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- saved from url=(0044)file:///C:/Users/Lisa/Downloads/index_5.html -->
+<!-- saved from url=(0044)file:///C:/Users/Lisa/Downloads/index_6.html -->
 <html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -1017,7 +1017,7 @@
   /* Day summary */
   .txn-summary-bar {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, 1fr);
     gap: 10px;
     margin-bottom: 4px;
   }
@@ -1270,7 +1270,7 @@
       <span class="logo-text">AJ Medina <span>POS</span></span>
     </div>
     <div class="header-right">
-      <span class="time-display" id="timeDisplay">01:41:30 AM</span>
+      <span class="time-display" id="timeDisplay">01:48:39 AM</span>
       <button class="theme-btn" id="themeBtn" onclick="toggleTheme()">
         <span id="themeIcon">☀️</span>
         <span id="themeLabel">Light</span>
@@ -1352,6 +1352,10 @@
         <div class="summary-stat">
           <span class="stat-label">Orders Today</span>
           <span class="stat-value" id="statOrders">0</span>
+        </div>
+        <div class="summary-stat">
+          <span class="stat-label">Sales Today</span>
+          <span class="stat-value green" id="statSalesToday">₱0</span>
         </div>
         <div class="summary-stat">
           <span class="stat-label">Total Sales</span>
@@ -2126,6 +2130,7 @@ function updateDayStats(combined) {
   const avg = count > 0 ? totalSales / count : 0;
   document.getElementById('statOrders').textContent = count;
   document.getElementById('statSales').textContent  = `₱${totalSales.toFixed(0)}`;
+  document.getElementById('statSalesToday').textContent = `₱${totalSales.toFixed(0)}`;
   document.getElementById('statAvg').textContent    = `₱${avg.toFixed(0)}`;
 }
 
