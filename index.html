@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
+<!-- saved from url=(0044)file:///C:/Users/Lisa/Downloads/index_3.html -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AJ Medina POS</title>
-<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="./AJ Medina POS_files/css2" rel="stylesheet">
 <style>
   /* ─── CSS Variables ─── */
   :root {
@@ -1125,7 +1125,7 @@
       <span class="logo-text">AJ Medina <span>POS</span></span>
     </div>
     <div class="header-right">
-      <span class="time-display" id="timeDisplay"></span>
+      <span class="time-display" id="timeDisplay">01:16:55 AM</span>
       <button class="theme-btn" id="themeBtn" onclick="toggleTheme()">
         <span id="themeIcon">☀️</span>
         <span id="themeLabel">Light</span>
@@ -1140,10 +1140,10 @@
   <main class="menu-panel">
     <!-- Category Tabs -->
     <div class="category-tabs">
-      <button class="cat-tab active" onclick="switchCategory('fries', this)">
+      <button class="cat-tab active" onclick="switchCategory(&#39;fries&#39;, this)">
         <span class="cat-icon">🍟</span> Fries
       </button>
-      <button class="cat-tab" onclick="switchCategory('drinks', this)">
+      <button class="cat-tab" onclick="switchCategory(&#39;drinks&#39;, this)">
         <span class="cat-icon">🥤</span> Drinks
       </button>
       <button class="cat-tab" id="txnTab" onclick="switchToTransactions(this)">
@@ -1156,13 +1156,43 @@
       <!-- Fries -->
       <div class="category-panel active" id="panel-fries">
         <p class="category-title">🍟 Fries</p>
-        <div class="products-grid" id="grid-fries"></div>
+        <div class="products-grid" id="grid-fries"><div class="product-card" id="card-f1">
+      <div class="product-emoji">🍟</div>
+      <div class="product-name">Combo (Kerito)</div>
+      <div class="product-price">₱35.00</div>
+      <div class="add-indicator">+</div>
+    </div><div class="product-card" id="card-f2">
+      <div class="product-emoji">🍟</div>
+      <div class="product-name">Small Fries</div>
+      <div class="product-price">₱25.00</div>
+      <div class="add-indicator">+</div>
+    </div><div class="product-card" id="card-f3">
+      <div class="product-emoji">🍟</div>
+      <div class="product-name">Medium Fries</div>
+      <div class="product-price">₱35.00</div>
+      <div class="add-indicator">+</div>
+    </div><div class="product-card" id="card-f4">
+      <div class="product-emoji">🍟</div>
+      <div class="product-name">Large Fries</div>
+      <div class="product-price">₱45.00</div>
+      <div class="add-indicator">+</div>
+    </div></div>
       </div>
 
       <!-- Drinks -->
       <div class="category-panel" id="panel-drinks">
         <p class="category-title">🥤 Drinks</p>
-        <div class="products-grid" id="grid-drinks"></div>
+        <div class="products-grid" id="grid-drinks"><div class="product-card" id="card-d1">
+      <div class="product-emoji">🥤</div>
+      <div class="product-name">Small Drink</div>
+      <div class="product-price">₱10.00</div>
+      <div class="add-indicator">+</div>
+    </div><div class="product-card" id="card-d2">
+      <div class="product-emoji">🥤</div>
+      <div class="product-name">Big Drink</div>
+      <div class="product-price">₱20.00</div>
+      <div class="add-indicator">+</div>
+    </div></div>
       </div>
     </div>
 
@@ -1206,7 +1236,7 @@
   <aside class="cart-panel" id="cartPanel">
     <div class="cart-header">
       <h2>Order</h2>
-      <span class="order-num" id="orderNum">#001</span>
+      <span class="order-num" id="orderNum">#1</span>
     </div>
 
     <div class="cart-items" id="cartItems">
@@ -1229,7 +1259,7 @@
         <span class="total-amount" id="totalAmount">₱0.00</span>
       </div>
       <div class="cart-actions">
-        <button class="btn-clear" id="clearBtn" onclick="clearOrder()" disabled>
+        <button class="btn-clear" id="clearBtn" onclick="clearOrder()" disabled="">
           🗑 Clear Order
         </button>
       </div>
@@ -1251,40 +1281,30 @@
       </div>
 
       <!-- Paid input -->
-      <div class="paid-display" id="paidDisplay" onclick="document.getElementById('paidInput').focus()">
+      <div class="paid-display" id="paidDisplay" onclick="document.getElementById(&#39;paidInput&#39;).focus()">
         <span class="paid-peso-symbol">₱</span>
-        <input
-          type="text"
-          id="paidInput"
-          placeholder="0"
-          oninput="handlePaidInput(this.value)"
-          onkeydown="handlePaidKeydown(event)"
-          autocomplete="off"
-          inputmode="numeric"
-          pattern="[0-9]*"
-          readonly
-        />
+        <input type="text" id="paidInput" placeholder="0" oninput="handlePaidInput(this.value)" onkeydown="handlePaidKeydown(event)" autocomplete="off" inputmode="numeric" pattern="[0-9]*">
         <span class="paid-cursor"></span>
       </div>
 
       <!-- Numpad -->
       <div class="numpad sidebar-numpad">
-        <button class="numpad-btn" onmousedown="event.preventDefault()" onclick="numpadPress('7')">7</button>
-        <button class="numpad-btn" onmousedown="event.preventDefault()" onclick="numpadPress('8')">8</button>
-        <button class="numpad-btn" onmousedown="event.preventDefault()" onclick="numpadPress('9')">9</button>
-        <button class="numpad-btn" onmousedown="event.preventDefault()" onclick="numpadPress('4')">4</button>
-        <button class="numpad-btn" onmousedown="event.preventDefault()" onclick="numpadPress('5')">5</button>
-        <button class="numpad-btn" onmousedown="event.preventDefault()" onclick="numpadPress('6')">6</button>
-        <button class="numpad-btn" onmousedown="event.preventDefault()" onclick="numpadPress('1')">1</button>
-        <button class="numpad-btn" onmousedown="event.preventDefault()" onclick="numpadPress('2')">2</button>
-        <button class="numpad-btn" onmousedown="event.preventDefault()" onclick="numpadPress('3')">3</button>
-        <button class="numpad-btn zero" onmousedown="event.preventDefault()" onclick="numpadPress('0')">0</button>
+        <button class="numpad-btn" onmousedown="event.preventDefault()" onclick="numpadPress(&#39;7&#39;)">7</button>
+        <button class="numpad-btn" onmousedown="event.preventDefault()" onclick="numpadPress(&#39;8&#39;)">8</button>
+        <button class="numpad-btn" onmousedown="event.preventDefault()" onclick="numpadPress(&#39;9&#39;)">9</button>
+        <button class="numpad-btn" onmousedown="event.preventDefault()" onclick="numpadPress(&#39;4&#39;)">4</button>
+        <button class="numpad-btn" onmousedown="event.preventDefault()" onclick="numpadPress(&#39;5&#39;)">5</button>
+        <button class="numpad-btn" onmousedown="event.preventDefault()" onclick="numpadPress(&#39;6&#39;)">6</button>
+        <button class="numpad-btn" onmousedown="event.preventDefault()" onclick="numpadPress(&#39;1&#39;)">1</button>
+        <button class="numpad-btn" onmousedown="event.preventDefault()" onclick="numpadPress(&#39;2&#39;)">2</button>
+        <button class="numpad-btn" onmousedown="event.preventDefault()" onclick="numpadPress(&#39;3&#39;)">3</button>
+        <button class="numpad-btn zero" onmousedown="event.preventDefault()" onclick="numpadPress(&#39;0&#39;)">0</button>
         <button class="numpad-btn del" onmousedown="event.preventDefault()" onclick="numpadDel()">⌫</button>
         <button class="numpad-btn clear-num" onmousedown="event.preventDefault()" onclick="numpadClear()">CLR</button>
       </div>
 
       <!-- Process button -->
-      <button class="btn-process" id="processBtn" onclick="processTransaction()" disabled>
+      <button class="btn-process" id="processBtn" onclick="processTransaction()" disabled="">
         ✓ Process Payment
       </button>
 
@@ -1539,7 +1559,7 @@ async function confirmOrder() {
 
   // Show success
   document.getElementById('successMsg').textContent =
-    `Order #${String(orderNum).padStart(3,'0')} — ₱${total.toFixed(2)} recorded!`;
+    `Order #${orderNum} — ₱${total.toFixed(2)} recorded!`;
   document.getElementById('successModal').classList.add('open');
 }
 
@@ -1552,7 +1572,7 @@ function closeSuccess() {
 }
 
 function updateOrderNum() {
-  document.getElementById('orderNum').textContent = `#${String(orderNum).padStart(3,'0')}`;
+  document.getElementById('orderNum').textContent = `#${orderNum}`;
 }
 
 // ─── Mobile Cart Toggle ───────────────────────────────────────────
@@ -1823,7 +1843,7 @@ function renderTransactionHistory() {
 
   list.innerHTML = combined.map(t => `
     <div class="txn-row">
-      <span class="txn-row-num">#${String(t.orderNum).padStart(3,'0')}</span>
+      <span class="txn-row-num">#${t.orderNum}</span>
       <div class="txn-row-info">
         <div class="txn-row-time">${t.time}</div>
         <div class="txn-row-items">${t.items}</div>
@@ -1858,5 +1878,6 @@ function showToast(msg) {
   toastTimer = setTimeout(() => toast.classList.remove('show'), 2000);
 }
 </script>
-</body>
-</html>
+
+
+</body></html>
