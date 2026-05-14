@@ -16,27 +16,44 @@
 // ══════════════════════════════════════════════════════════════════
 
 // ── Config ──────────────────────────────────────────────────────
-var SHEET_NAME_ORDERS  = 'Orders';
-var SHEET_NAME_ITEMS   = 'Order Items';
+var SHEET_NAME_ORDERS    = 'Orders';
+var SHEET_NAME_ITEMS     = 'Order Items';
+var SHEET_NAME_INVENTORY = 'Inventory';
 
 // ── Entry Points ─────────────────────────────────────────────────
 
 /**
- * GET  → health check / simple ping
+ * GET  → health check / simple ping, or fetch inventory/transactions
  */
 function doGet(e) {
+  var action = e && e.parameter && e.parameter.action ? e.parameter.action : '';
+
+  if (action === 'inventory') {
+    return getInventory();
+  }
+  if (action === 'transactions') {
+    return getTransactions();
+  }
+
   return ContentService
     .createTextOutput(JSON.stringify({ status: 'ok', app: 'AJ Medina POS', time: new Date().toISOString() }))
     .setMimeType(ContentService.MimeType.JSON);
 }
 
 /**
- * POST → receive order from POS frontend
+ * POST → receive order or inventory action from POS frontend
  */
 function doPost(e) {
   try {
     var raw  = e.postData ? e.postData.contents : '{}';
     var data = JSON.parse(raw);
+
+    // Route by action field
+    if (data.action === 'addInventory')    return addInventoryRow(data);
+    if (data.action === 'updateInventory') return updateInventoryRow(data);
+    if (data.action === 'deleteInventory') return deleteInventoryRow(data);
+
+    // Default: save order
     saveOrder(data);
     return ContentService
       .createTextOutput(JSON.stringify({ success: true, orderNum: data.orderNum }))
@@ -46,6 +63,152 @@ function doPost(e) {
       .createTextOutput(JSON.stringify({ success: false, error: err.message }))
       .setMimeType(ContentService.MimeType.JSON);
   }
+}
+
+// ── Inventory Logic ───────────────────────────────────────────────
+
+/**
+ * Returns all rows from the Inventory sheet as JSON.
+ */
+function getInventory() {
+  var ss    = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = getOrCreateSheet(ss, SHEET_NAME_INVENTORY);
+  ensureInventoryHeader(sheet);
+
+  var last = sheet.getLastRow();
+  if (last < 2) {
+    return ContentService
+      .createTextOutput(JSON.stringify({ success: true, inventory: [] }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+
+  var rows = sheet.getRange(2, 1, last - 1, 6).getValues();
+  var inventory = rows.map(function(r) {
+    return {
+      item:       r[0],
+      unit:       r[1],
+      beginQty:   r[2],
+      withdrawal: r[3],
+      balance:    r[4],
+      remarks:    r[5]
+    };
+  }).filter(function(r) { return r.item !== ''; });
+
+  return ContentService
+    .createTextOutput(JSON.stringify({ success: true, inventory: inventory }))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+/**
+ * Appends a new row to the Inventory sheet.
+ */
+function addInventoryRow(data) {
+  var ss    = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = getOrCreateSheet(ss, SHEET_NAME_INVENTORY);
+  ensureInventoryHeader(sheet);
+
+  sheet.appendRow([
+    data.item       || '',
+    data.unit       || '',
+    data.beginQty   != null ? data.beginQty   : 0,
+    data.withdrawal != null ? data.withdrawal : 0,
+    data.balance    != null ? data.balance    : 0,
+    data.remarks    || ''
+  ]);
+
+  return ContentService
+    .createTextOutput(JSON.stringify({ success: true }))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+/**
+ * Updates an existing row in the Inventory sheet (0-based rowIndex from frontend).
+ */
+function updateInventoryRow(data) {
+  var ss    = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = getOrCreateSheet(ss, SHEET_NAME_INVENTORY);
+  ensureInventoryHeader(sheet);
+
+  // rowIndex is 0-based from the frontend (maps to sheet row = rowIndex + 2)
+  var sheetRow = parseInt(data.rowIndex) + 2;
+  if (isNaN(sheetRow) || sheetRow < 2) {
+    return ContentService
+      .createTextOutput(JSON.stringify({ success: false, error: 'Invalid row index' }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+
+  sheet.getRange(sheetRow, 1, 1, 6).setValues([[
+    data.item       || '',
+    data.unit       || '',
+    data.beginQty   != null ? data.beginQty   : 0,
+    data.withdrawal != null ? data.withdrawal : 0,
+    data.balance    != null ? data.balance    : 0,
+    data.remarks    || ''
+  ]]);
+
+  return ContentService
+    .createTextOutput(JSON.stringify({ success: true }))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+/**
+ * Deletes a row from the Inventory sheet (0-based rowIndex from frontend).
+ */
+function deleteInventoryRow(data) {
+  var ss    = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = getOrCreateSheet(ss, SHEET_NAME_INVENTORY);
+
+  var sheetRow = parseInt(data.rowIndex) + 2;
+  if (isNaN(sheetRow) || sheetRow < 2) {
+    return ContentService
+      .createTextOutput(JSON.stringify({ success: false, error: 'Invalid row index' }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+
+  sheet.deleteRow(sheetRow);
+
+  return ContentService
+    .createTextOutput(JSON.stringify({ success: true }))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+function ensureInventoryHeader(sheet) {
+  if (sheet.getLastRow() === 0) {
+    var header = ['ITEM', 'UNIT-M', 'BEGINNING QTY', 'TOTAL WITHDRAWAL', 'AVAILABLE BALANCE', 'REMARKS'];
+    sheet.appendRow(header);
+    styleHeaderRow(sheet, header.length);
+  }
+}
+
+// ── Transactions Fetch ────────────────────────────────────────────
+
+/**
+ * Returns rows from the Orders sheet as JSON for the Transactions tab.
+ */
+function getTransactions() {
+  var ss    = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName(SHEET_NAME_ORDERS);
+  if (!sheet || sheet.getLastRow() < 2) {
+    return ContentService
+      .createTextOutput(JSON.stringify({ success: true, transactions: [] }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+
+  var rows = sheet.getRange(2, 1, sheet.getLastRow() - 1, 5).getValues();
+  var txns = rows.map(function(r) {
+    return {
+      orderNum: r[0],
+      time:     r[1],
+      items:    r[2],
+      total:    r[4],
+      paid:     0,
+      change:   0
+    };
+  });
+
+  return ContentService
+    .createTextOutput(JSON.stringify({ success: true, transactions: txns }))
+    .setMimeType(ContentService.MimeType.JSON);
 }
 
 // ── Core Logic ───────────────────────────────────────────────────

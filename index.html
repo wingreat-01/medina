@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- saved from url=(0044)file:///C:/Users/Lisa/Downloads/index_4.html -->
+<!-- saved from url=(0044)file:///C:/Users/Lisa/Downloads/index_5.html -->
 <html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -1111,9 +1111,154 @@
   .sidebar-register #paidInput {
     font-size: 22px !important;
   }
+  /* ─── Inventory Panel ─── */
+  .inv-panel {
+    display: none;
+    flex-direction: column;
+    gap: 0;
+    padding: 0;
+    overflow-y: auto;
+    flex: 1;
+  }
+  .inv-panel.active { display: flex; }
+
+  .inv-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 18px 20px 14px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg);
+    flex-shrink: 0;
+  }
+  .inv-title-row {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .inv-panel-title {
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text);
+  }
+  .inv-sync-status {
+    font-size: 11px;
+    color: var(--text3);
+    font-family: 'Space Mono', monospace;
+  }
+  .inv-toolbar-actions { display: flex; gap: 8px; align-items: center; }
+  .inv-btn {
+    padding: 8px 16px;
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    font-family: 'DM Sans', sans-serif;
+    transition: all 0.15s;
+  }
+  .inv-btn-primary { background: var(--accent); color: #111; }
+  .inv-btn-primary:hover { background: #f5d55e; }
+  .inv-btn-secondary {
+    background: var(--surface2);
+    color: var(--text2);
+    border: 1.5px solid var(--border);
+  }
+  .inv-btn-secondary:hover { background: var(--surface3); color: var(--text); }
+
+  .inv-table-wrap {
+    flex: 1;
+    overflow: auto;
+    padding: 16px 20px 24px;
+  }
+  .inv-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    min-width: 680px;
+  }
+  .inv-table thead tr {
+    background: var(--surface2);
+  }
+  .inv-table th {
+    padding: 11px 14px;
+    text-align: left;
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text3);
+    border-bottom: 2px solid var(--border);
+    white-space: nowrap;
+  }
+  .inv-table td {
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+    vertical-align: middle;
+  }
+  .inv-table tbody tr:hover { background: var(--surface2); }
+  .inv-table tbody tr:last-child td { border-bottom: none; }
+
+  .inv-empty-row { text-align: center; padding: 40px !important; }
+  .inv-empty { display: flex; flex-direction: column; align-items: center; gap: 10px; color: var(--text3); font-size: 13px; }
+  .inv-empty-icon { font-size: 28px; opacity: 0.4; }
+
+  .inv-balance-val { font-family: 'Space Mono', monospace; font-weight: 700; color: var(--green); }
+  .inv-balance-val.low { color: var(--red); }
+  .inv-balance-val.warn { color: var(--accent2); }
+
+  .inv-action-btns { display: flex; gap: 6px; }
+  .inv-action-btn {
+    padding: 5px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    border: 1.5px solid var(--border);
+    background: var(--surface2);
+    color: var(--text2);
+    font-family: 'DM Sans', sans-serif;
+    transition: all 0.13s;
+  }
+  .inv-action-btn:hover { background: var(--accent); border-color: var(--accent); color: #111; }
+  .inv-action-btn.del:hover { background: var(--red); border-color: var(--red); color: #fff; }
+
+  /* Inventory Modal */
+  .inv-modal { max-width: 480px; text-align: left; }
+  .inv-form { display: flex; flex-direction: column; gap: 12px; margin-top: 16px; }
+  .inv-form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .inv-field { display: flex; flex-direction: column; gap: 5px; }
+  .inv-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text3);
+    font-family: 'Space Mono', monospace;
+  }
+  .inv-input {
+    padding: 10px 12px;
+    background: var(--surface2);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    font-size: 14px;
+    font-family: 'DM Sans', sans-serif;
+    outline: none;
+    transition: border-color 0.15s;
+    width: 100%;
+  }
+  .inv-input:focus { border-color: var(--accent); }
+  .inv-input.inv-readonly { color: var(--text3); cursor: not-allowed; }
+  select.inv-input { appearance: auto; }
 </style>
-</head>
-<body>
+</head><body>
 
 <!-- App Shell -->
 <div class="app" id="app">
@@ -1125,7 +1270,7 @@
       <span class="logo-text">AJ Medina <span>POS</span></span>
     </div>
     <div class="header-right">
-      <span class="time-display" id="timeDisplay">01:24:23 AM</span>
+      <span class="time-display" id="timeDisplay">01:41:30 AM</span>
       <button class="theme-btn" id="themeBtn" onclick="toggleTheme()">
         <span id="themeIcon">☀️</span>
         <span id="themeLabel">Light</span>
@@ -1148,6 +1293,9 @@
       </button>
       <button class="cat-tab" id="txnTab" onclick="switchToTransactions(this)">
         <span class="cat-icon">💵</span> Transactions
+      </button>
+      <button class="cat-tab" id="invTab" onclick="switchToInventory(this)">
+        <span class="cat-icon">📦</span> Inventory
       </button>
     </div>
 
@@ -1230,6 +1378,48 @@
       </div>
 
     </div><!-- end txn-panel -->
+
+    <!-- Inventory Panel -->
+    <div class="inv-panel" id="panel-inv">
+
+      <div class="inv-toolbar">
+        <div class="inv-title-row">
+          <span class="inv-panel-title">📦 Inventory</span>
+          <span class="inv-sync-status" id="invSyncStatus">Not synced</span>
+        </div>
+        <div class="inv-toolbar-actions">
+          <button class="inv-btn inv-btn-secondary" onclick="fetchInventory()">⟳ Refresh</button>
+          <button class="inv-btn inv-btn-primary" onclick="openInvModal()">+ Add Item</button>
+        </div>
+      </div>
+
+      <div class="inv-table-wrap">
+        <table class="inv-table" id="invTable">
+          <thead>
+            <tr>
+              <th>ITEM</th>
+              <th>UNIT-M</th>
+              <th>BEGINNING QTY</th>
+              <th>TOTAL WITHDRAWAL</th>
+              <th>AVAILABLE BALANCE</th>
+              <th>REMARKS</th>
+              <th>ACTIONS</th>
+            </tr>
+          </thead>
+          <tbody id="invTableBody">
+            <tr>
+              <td colspan="7" class="inv-empty-row">
+                <div class="inv-empty">
+                  <div class="inv-empty-icon">📦</div>
+                  <div>Loading inventory…</div>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div><!-- end inv-panel -->
   </main>
 
   <!-- Cart Panel -->
@@ -1338,6 +1528,73 @@
     <h3>Order Placed!</h3>
     <p id="successMsg">Order #001 has been recorded successfully.</p>
     <button class="modal-btn confirm" style="width:100%;margin-top:8px;" onclick="closeSuccess()">New Order</button>
+  </div>
+</div>
+
+<!-- Inventory Add/Edit Modal -->
+<div class="modal-overlay" id="invModal">
+  <div class="modal inv-modal">
+    <div class="modal-icon" id="invModalIcon">📦</div>
+    <h3 id="invModalTitle">Add Inventory Item</h3>
+    <div class="inv-form">
+      <input type="hidden" id="invEditRow">
+      <div class="inv-field">
+        <label class="inv-label">Item</label>
+        <select class="inv-input" id="invItem">
+          <option value="">— Select item —</option>
+          <option value="Fries">Fries</option>
+          <option value="Cups">Cups</option>
+          <option value="Tissue">Tissue</option>
+          <option value="Cooking Oil">Cooking Oil</option>
+          <option value="Cheese Powder">Cheese Powder</option>
+          <option value="BBQ Powder">BBQ Powder</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+      <div class="inv-field" id="invItemOtherWrap" style="display:none">
+        <label class="inv-label">Item Name</label>
+        <input class="inv-input" id="invItemOther" type="text" placeholder="Enter item name">
+      </div>
+      <div class="inv-form-row">
+        <div class="inv-field">
+          <label class="inv-label">Unit of Measure</label>
+          <select class="inv-input" id="invUnit">
+            <option value="pcs">pcs</option>
+            <option value="kg">kg</option>
+            <option value="g">g</option>
+            <option value="L">L</option>
+            <option value="mL">mL</option>
+            <option value="pack">pack</option>
+            <option value="box">box</option>
+            <option value="sack">sack</option>
+            <option value="bottle">bottle</option>
+            <option value="can">can</option>
+          </select>
+        </div>
+        <div class="inv-field">
+          <label class="inv-label">Beginning Qty</label>
+          <input class="inv-input" id="invBeginQty" type="number" min="0" step="any" placeholder="0">
+        </div>
+      </div>
+      <div class="inv-form-row">
+        <div class="inv-field">
+          <label class="inv-label">Total Withdrawal</label>
+          <input class="inv-input" id="invWithdrawal" type="number" min="0" step="any" placeholder="0">
+        </div>
+        <div class="inv-field">
+          <label class="inv-label">Available Balance</label>
+          <input class="inv-input inv-readonly" id="invBalance" type="number" readonly="" placeholder="Auto">
+        </div>
+      </div>
+      <div class="inv-field">
+        <label class="inv-label">Remarks</label>
+        <input class="inv-input" id="invRemarks" type="text" placeholder="e.g. Low stock, reorder, etc.">
+      </div>
+    </div>
+    <div class="modal-actions" style="margin-top:16px">
+      <button class="modal-btn cancel" onclick="closeInvModal()">Cancel</button>
+      <button class="modal-btn confirm" onclick="saveInvItem()">💾 Save</button>
+    </div>
   </div>
 </div>
 
@@ -1609,6 +1866,7 @@ function switchToTransactions(tab) {
   const productsArea = document.querySelector('.products-area');
   const txnPanel = document.getElementById('panel-txn');
   productsArea.style.display = 'none';
+  document.getElementById('panel-inv').classList.remove('active');
   txnPanel.classList.add('active');
 
   // Fetch persisted transactions from the sheet
@@ -1616,9 +1874,10 @@ function switchToTransactions(tab) {
 }
 
 function switchCategory(category, tab) {
-  // Hide txn panel, show products area
+  // Hide txn panel and inv panel, show products area
   document.querySelector('.products-area').style.display = '';
   document.getElementById('panel-txn').classList.remove('active');
+  document.getElementById('panel-inv').classList.remove('active');
 
   document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('active'));
   document.querySelectorAll('.category-panel').forEach(p => p.classList.remove('active'));
@@ -1870,13 +2129,212 @@ function updateDayStats(combined) {
   document.getElementById('statAvg').textContent    = `₱${avg.toFixed(0)}`;
 }
 
-let toastTimer;
-function showToast(msg) {
-  const toast = document.getElementById('toast');
-  document.getElementById('toastMsg').textContent = msg;
-  toast.classList.add('show');
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => toast.classList.remove('show'), 2000);
+// ─── Inventory Tab ────────────────────────────────────────────────
+let inventoryData = [];
+
+function switchToInventory(tab) {
+  document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.category-panel').forEach(p => p.classList.remove('active'));
+  tab.classList.add('active');
+
+  document.querySelector('.products-area').style.display = 'none';
+  document.getElementById('panel-txn').classList.remove('active');
+  document.getElementById('panel-inv').classList.add('active');
+
+  fetchInventory();
+}
+
+async function fetchInventory() {
+  setInvSyncStatus('⏳ Syncing…');
+  if (!GAS_URL || GAS_URL === 'YOUR_GAS_WEB_APP_URL_HERE') {
+    renderInventoryTable([]);
+    setInvSyncStatus('⚠️ No GAS URL set');
+    return;
+  }
+  try {
+    const res  = await fetch(GAS_URL + '?action=inventory');
+    const json = await res.json();
+    if (json.success && Array.isArray(json.inventory)) {
+      inventoryData = json.inventory;
+      renderInventoryTable(inventoryData);
+      setInvSyncStatus('✅ Synced ' + new Date().toLocaleTimeString('en-PH'));
+    } else {
+      renderInventoryTable([]);
+      setInvSyncStatus('⚠️ No data returned');
+    }
+  } catch (e) {
+    renderInventoryTable([]);
+    setInvSyncStatus('❌ Fetch failed');
+  }
+}
+
+function renderInventoryTable(rows) {
+  const tbody = document.getElementById('invTableBody');
+  if (!rows || rows.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="7" class="inv-empty-row">
+      <div class="inv-empty"><div class="inv-empty-icon">📦</div>No inventory items yet. Click "+ Add Item" to get started.</div>
+    </td></tr>`;
+    return;
+  }
+  tbody.innerHTML = rows.map((r, i) => {
+    const bal = parseFloat(r.balance) || 0;
+    const balClass = bal <= 0 ? 'low' : bal < 5 ? 'warn' : '';
+    return `<tr>
+      <td><strong>${r.item || '—'}</strong></td>
+      <td>${r.unit || '—'}</td>
+      <td style="font-family:'Space Mono',monospace">${r.beginQty ?? '—'}</td>
+      <td style="font-family:'Space Mono',monospace">${r.withdrawal ?? '—'}</td>
+      <td><span class="inv-balance-val ${balClass}">${bal}</span></td>
+      <td style="color:var(--text2);font-size:12px">${r.remarks || ''}</td>
+      <td>
+        <div class="inv-action-btns">
+          <button class="inv-action-btn" onclick="editInvItem(${i})">✏️ Edit</button>
+          <button class="inv-action-btn del" onclick="deleteInvItem(${i})">✕</button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function setInvSyncStatus(msg) {
+  document.getElementById('invSyncStatus').textContent = msg;
+}
+
+// ─── Inventory Modal ──────────────────────────────────────────────
+function openInvModal(editIdx) {
+  document.getElementById('invModalTitle').textContent = editIdx !== undefined ? 'Edit Inventory Item' : 'Add Inventory Item';
+  document.getElementById('invModalIcon').textContent  = editIdx !== undefined ? '✏️' : '📦';
+  document.getElementById('invEditRow').value = editIdx !== undefined ? editIdx : '';
+
+  if (editIdx !== undefined) {
+    const r = inventoryData[editIdx];
+    document.getElementById('invItem').value      = r.item || '';
+    document.getElementById('invUnit').value      = r.unit || 'pcs';
+    document.getElementById('invBeginQty').value  = r.beginQty ?? '';
+    document.getElementById('invWithdrawal').value= r.withdrawal ?? '';
+    document.getElementById('invBalance').value   = r.balance ?? '';
+    document.getElementById('invRemarks').value   = r.remarks || '';
+    toggleOtherField(r.item);
+  } else {
+    document.getElementById('invItem').value      = '';
+    document.getElementById('invUnit').value      = 'pcs';
+    document.getElementById('invBeginQty').value  = '';
+    document.getElementById('invWithdrawal').value= '';
+    document.getElementById('invBalance').value   = '';
+    document.getElementById('invRemarks').value   = '';
+    document.getElementById('invItemOtherWrap').style.display = 'none';
+  }
+
+  document.getElementById('invModal').classList.add('open');
+}
+
+function closeInvModal() {
+  document.getElementById('invModal').classList.remove('open');
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('invItem').addEventListener('change', function() {
+    toggleOtherField(this.value);
+  });
+  document.getElementById('invBeginQty').addEventListener('input', recalcBalance);
+  document.getElementById('invWithdrawal').addEventListener('input', recalcBalance);
+});
+
+function toggleOtherField(val) {
+  document.getElementById('invItemOtherWrap').style.display = val === 'Other' ? '' : 'none';
+}
+
+function recalcBalance() {
+  const begin = parseFloat(document.getElementById('invBeginQty').value) || 0;
+  const with_ = parseFloat(document.getElementById('invWithdrawal').value) || 0;
+  document.getElementById('invBalance').value = (begin - with_).toFixed(2);
+}
+
+async function saveInvItem() {
+  const itemSel  = document.getElementById('invItem').value;
+  const itemName = itemSel === 'Other'
+    ? (document.getElementById('invItemOther').value.trim() || 'Other')
+    : itemSel;
+
+  if (!itemName) { showToast('⚠️ Please select an item'); return; }
+
+  const begin = parseFloat(document.getElementById('invBeginQty').value) || 0;
+  const with_ = parseFloat(document.getElementById('invWithdrawal').value) || 0;
+  const bal   = begin - with_;
+
+  const payload = {
+    item:       itemName,
+    unit:       document.getElementById('invUnit').value,
+    beginQty:   begin,
+    withdrawal: with_,
+    balance:    parseFloat(bal.toFixed(2)),
+    remarks:    document.getElementById('invRemarks').value.trim()
+  };
+
+  const editIdx = document.getElementById('invEditRow').value;
+  const action  = editIdx !== '' ? 'updateInventory' : 'addInventory';
+  if (editIdx !== '') payload.rowIndex = parseInt(editIdx);
+
+  closeInvModal();
+  setInvSyncStatus('⏳ Saving…');
+
+  if (!GAS_URL || GAS_URL === 'YOUR_GAS_WEB_APP_URL_HERE') {
+    // Offline: update local data only
+    if (editIdx !== '') {
+      inventoryData[parseInt(editIdx)] = payload;
+    } else {
+      inventoryData.push(payload);
+    }
+    renderInventoryTable(inventoryData);
+    setInvSyncStatus('⚠️ Saved locally (no GAS URL)');
+    showToast('📦 Item saved locally');
+    return;
+  }
+
+  try {
+    await fetch(GAS_URL, {
+      method: 'POST',
+      mode:   'no-cors',
+      headers:{ 'Content-Type': 'application/json' },
+      body:   JSON.stringify({ action, ...payload })
+    });
+    showToast('✅ Inventory saved!');
+    await fetchInventory();
+  } catch (err) {
+    showToast('❌ Save failed');
+    setInvSyncStatus('❌ Save error');
+  }
+}
+
+function editInvItem(idx) {
+  openInvModal(idx);
+}
+
+async function deleteInvItem(idx) {
+  if (!confirm('Delete this inventory item?')) return;
+  const row = inventoryData[idx];
+
+  if (!GAS_URL || GAS_URL === 'YOUR_GAS_WEB_APP_URL_HERE') {
+    inventoryData.splice(idx, 1);
+    renderInventoryTable(inventoryData);
+    showToast('🗑 Item removed locally');
+    return;
+  }
+
+  setInvSyncStatus('⏳ Deleting…');
+  try {
+    await fetch(GAS_URL, {
+      method: 'POST',
+      mode:   'no-cors',
+      headers:{ 'Content-Type': 'application/json' },
+      body:   JSON.stringify({ action: 'deleteInventory', rowIndex: idx, item: row.item })
+    });
+    showToast('🗑 Item deleted');
+    await fetchInventory();
+  } catch (e) {
+    showToast('❌ Delete failed');
+    setInvSyncStatus('❌ Delete error');
+  }
 }
 </script>
 
