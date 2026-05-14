@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- saved from url=(0044)file:///C:/Users/Lisa/Downloads/index_3.html -->
+<!-- saved from url=(0044)file:///C:/Users/Lisa/Downloads/index_4.html -->
 <html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -1125,7 +1125,7 @@
       <span class="logo-text">AJ Medina <span>POS</span></span>
     </div>
     <div class="header-right">
-      <span class="time-display" id="timeDisplay">01:16:55 AM</span>
+      <span class="time-display" id="timeDisplay">01:24:23 AM</span>
       <button class="theme-btn" id="themeBtn" onclick="toggleTheme()">
         <span id="themeIcon">☀️</span>
         <span id="themeLabel">Light</span>
@@ -1403,6 +1403,7 @@ function updateClock() {
 // ─── Products ───────────────────────────────────────────────────
 function renderProducts(category) {
   const grid = document.getElementById('grid-' + category);
+  grid.innerHTML = ''; // clear any hard-coded cards before rendering
   PRODUCTS[category].forEach(product => {
     const card = document.createElement('div');
     card.className = 'product-card';
