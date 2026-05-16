@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- saved from url=(0044)file:///C:/Users/USER/Downloads/index_1.html -->
+<!-- saved from url=(0044)file:///C:/Users/USER/Downloads/index_3.html -->
 <html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -1676,7 +1676,7 @@
       <span class="logo-text">AJ Medina <span>POS</span></span>
     </div>
     <div class="header-right">
-      <span class="time-display" id="timeDisplay">11:55:26 PM</span>
+      <span class="time-display" id="timeDisplay">12:31:52 AM</span>
       <div class="user-badge" id="userBadge">
         <span class="user-badge-dot"></span>
         <span class="user-badge-name" id="userBadgeName">—</span>
@@ -2964,6 +2964,15 @@ async function fetchSheetTransactions() {
         details  : Array.isArray(r.details) ? r.details : [],
         fromSheet: true
       }));
+
+      // ── FIX: sync orderNum to avoid duplicate #1, #2, etc. across sessions ──
+      if (sheetTransactions.length > 0) {
+        const maxNum = Math.max(...sheetTransactions.map(t => Number(t.orderNum) || 0));
+        if (maxNum >= orderNum) {
+          orderNum = maxNum + 1;
+          document.getElementById('orderNum').textContent = `#${orderNum}`;
+        }
+      }
     }
   } catch (e) {
     console.warn('Could not fetch transactions from sheet:', e);
