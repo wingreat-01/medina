@@ -2820,12 +2820,17 @@ function switchCategory(category, tab) {
 }
 
 function refreshRegister() {
+  // Re-render paid display & enable/disable processBtn based on current paidRaw
+  // paidRaw is NEVER reset here — only reset after a completed transaction (clearOrder)
+  const paid = parseInt(paidRaw) || 0;
   const total = cart.reduce((s, i) => s + i.product.price * i.qty, 0);
-
-  // Re-render paid display without resetting the entered amount
-  // (paidRaw is only reset after a completed transaction in clearOrder)
-  renderPaid();
-  updateChangeDisplay(total, parseInt(paidRaw) || 0);
+  const input = document.getElementById('paidInput');
+  if (input) input.value = paid > 0 ? paid : '';
+  const paidDisplay = document.getElementById('paidDisplay');
+  if (paidDisplay) paidDisplay.classList.toggle('insufficient', paid > 0 && paid < total);
+  const regPaid = document.getElementById('regPaidDisplay');
+  if (regPaid) regPaid.textContent = `₱${paid.toLocaleString('en-PH', {minimumFractionDigits:2})}`;
+  updateChangeDisplay(total, paid);
 }
 
 function renderPaid() {
@@ -2864,42 +2869,41 @@ function handlePaidKeydown(e) {
 }
 
 function updateChangeDisplay(total, paid) {
-  if (paid === undefined) paid = parseInt(paidRaw) || 0;
+  paid = (paid !== undefined) ? paid : (parseInt(paidRaw) || 0);
+  total = (total !== undefined) ? total : cart.reduce((s, i) => s + i.product.price * i.qty, 0);
   const change = paid - total;
   const el = document.getElementById('regChange');
-  el.textContent = `₱${Math.abs(change).toLocaleString('en-PH', {minimumFractionDigits:2})}`;
+  if (!el) return;
   el.className = 'display-value';
-  if (paid === 0 || (paid === 0 && total === 0)) {
+  if (paid === 0) {
+    el.textContent = '₱0.00';
     el.classList.add('zero');
   } else if (change < 0) {
     el.textContent = `−₱${Math.abs(change).toLocaleString('en-PH', {minimumFractionDigits:2})}`;
     el.classList.add('negative');
   } else {
+    el.textContent = `₱${change.toLocaleString('en-PH', {minimumFractionDigits:2})}`;
     el.classList.add('positive');
   }
   // Enable process only if paid >= total and there's an order
-  document.getElementById('processBtn').disabled = !(cart.length > 0 && paid >= total && total > 0);
+  const btn = document.getElementById('processBtn');
+  if (btn) btn.disabled = !(cart.length > 0 && paid >= total && total > 0);
 }
 
 function numpadPress(digit) {
-  const input = document.getElementById('paidInput');
-  const cur = input.value.replace(/\D/g, '');
-  if (cur === '0' || cur === '') input.value = digit;
-  else if (cur.length < 8) input.value = cur + digit;
-  handlePaidInput(input.value);
+  const cur = paidRaw === '0' ? '' : paidRaw;
+  if (cur.length < 8) paidRaw = (cur + digit) || '0';
+  refreshRegister();
 }
 
 function numpadDel() {
-  const input = document.getElementById('paidInput');
-  const cur = input.value.replace(/\D/g, '');
-  input.value = cur.length <= 1 ? '' : cur.slice(0, -1);
-  handlePaidInput(input.value);
+  paidRaw = paidRaw.length <= 1 ? '0' : paidRaw.slice(0, -1);
+  refreshRegister();
 }
 
 function numpadClear() {
-  const input = document.getElementById('paidInput');
-  input.value = '';
-  handlePaidInput('');
+  paidRaw = '0';
+  refreshRegister();
 }
 
 function setQuick(amount) {
@@ -2916,7 +2920,9 @@ function setExact() {
 function processTransaction() {
   const total = cart.reduce((s, i) => s + i.product.price * i.qty, 0);
   const paid = parseInt(paidRaw) || 0;
-  if (paid < total || cart.length === 0) return;
+  console.log('[POS] processTransaction called — cart:', cart.length, 'total:', total, 'paid:', paid, 'paidRaw:', paidRaw);
+  if (cart.length === 0) { showToast('⚠️ Cart is empty'); return; }
+  if (paid < total) { showToast('⚠️ Insufficient payment'); return; }
 
   const change = paid - total;
   const now = new Date();
