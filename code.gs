@@ -1,6 +1,6 @@
 // ══════════════════════════════════════════════════════════════════
 //  AJ Medina POS — Google Apps Script Backend (code.gs)
-//  Logs POS orders to a Google Sheet
+//  Logs POS orders to a Google Sheet + User Authentication
 // ══════════════════════════════════════════════════════════════════
 //
 //  SETUP GUIDE:
@@ -13,17 +13,24 @@
 //  5. Paste it into index.html where it says:
 //     const GAS_URL = 'YOUR_GAS_WEB_APP_URL_HERE';
 //
+//  FIRST-TIME SETUP:
+//  The admin account is auto-created on first run:
+//    Username: admin
+//    Password: admin123
+//  Change it immediately after first login via the Admin panel.
+//
 // ══════════════════════════════════════════════════════════════════
 
 // ── Config ──────────────────────────────────────────────────────
 var SHEET_NAME_ORDERS    = 'Orders';
 var SHEET_NAME_ITEMS     = 'Order Items';
 var SHEET_NAME_INVENTORY = 'Inventory';
+var SHEET_NAME_USERS     = 'Users';
 
 // ── Entry Points ─────────────────────────────────────────────────
 
 /**
- * GET  → health check / simple ping, or fetch inventory/transactions
+ * GET  → health check / simple ping, or fetch inventory/transactions/users
  */
 function doGet(e) {
   var action = e && e.parameter && e.parameter.action ? e.parameter.action : '';
@@ -34,6 +41,9 @@ function doGet(e) {
   if (action === 'transactions') {
     return getTransactions();
   }
+  if (action === 'getUsers') {
+    return getUsers();
+  }
 
   return ContentService
     .createTextOutput(JSON.stringify({ status: 'ok', app: 'AJ Medina POS', time: new Date().toISOString() }))
@@ -41,14 +51,20 @@ function doGet(e) {
 }
 
 /**
- * POST → receive order or inventory action from POS frontend
+ * POST → receive order or inventory action or auth action from POS frontend
  */
 function doPost(e) {
   try {
     var raw  = e.postData ? e.postData.contents : '{}';
     var data = JSON.parse(raw);
 
-    // Route by action field
+    // ── Auth routes ──
+    if (data.action === 'login')      return handleLogin(data);
+    if (data.action === 'createUser') return createUser(data);
+    if (data.action === 'updateUser') return updateUser(data);
+    if (data.action === 'deleteUser') return deleteUser(data);
+
+    // ── Inventory routes ──
     if (data.action === 'addInventory')    return addInventoryRow(data);
     if (data.action === 'updateInventory') return updateInventoryRow(data);
     if (data.action === 'deleteInventory') return deleteInventoryRow(data);
@@ -65,11 +81,161 @@ function doPost(e) {
   }
 }
 
-// ── Inventory Logic ───────────────────────────────────────────────
+// ── Auth / User Management ────────────────────────────────────────
 
 /**
- * Returns all rows from the Inventory sheet as JSON.
+ * Ensures the Users sheet exists with the default admin account.
  */
+function ensureUsersSheet(sheet) {
+  if (sheet.getLastRow() === 0) {
+    var header = ['Username', 'Password', 'Role', 'Created At', 'Last Login'];
+    sheet.appendRow(header);
+    styleHeaderRow(sheet, header.length);
+    // Seed default admin
+    sheet.appendRow(['admin', 'admin123', 'admin', new Date().toISOString(), '']);
+  }
+}
+
+/**
+ * Login: validate username + password, return role.
+ */
+function handleLogin(data) {
+  var ss    = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = getOrCreateSheet(ss, SHEET_NAME_USERS);
+  ensureUsersSheet(sheet);
+
+  var last = sheet.getLastRow();
+  if (last < 2) {
+    return jsonResponse({ success: false, error: 'No users found.' });
+  }
+
+  var rows = sheet.getRange(2, 1, last - 1, 5).getValues();
+  for (var i = 0; i < rows.length; i++) {
+    var uname = String(rows[i][0]).trim();
+    var upass = String(rows[i][1]).trim();
+    var urole = String(rows[i][2]).trim();
+    if (uname === String(data.username).trim() && upass === String(data.password).trim()) {
+      // Update last login
+      sheet.getRange(i + 2, 5).setValue(new Date().toISOString());
+      return jsonResponse({ success: true, role: urole, username: uname });
+    }
+  }
+  return jsonResponse({ success: false, error: 'Invalid username or password.' });
+}
+
+/**
+ * Returns all users (passwords redacted).
+ */
+function getUsers() {
+  var ss    = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = getOrCreateSheet(ss, SHEET_NAME_USERS);
+  ensureUsersSheet(sheet);
+
+  var last = sheet.getLastRow();
+  if (last < 2) {
+    return jsonResponse({ success: true, users: [] });
+  }
+
+  var rows = sheet.getRange(2, 1, last - 1, 5).getValues();
+  var users = rows.map(function(r, i) {
+    return {
+      rowIndex:   i,
+      username:   r[0],
+      role:       r[2],
+      createdAt:  r[3],
+      lastLogin:  r[4]
+    };
+  }).filter(function(u) { return u.username !== ''; });
+
+  return jsonResponse({ success: true, users: users });
+}
+
+/**
+ * Create a new user (admin only — enforced on frontend).
+ */
+function createUser(data) {
+  var ss    = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = getOrCreateSheet(ss, SHEET_NAME_USERS);
+  ensureUsersSheet(sheet);
+
+  // Check for duplicate username
+  var last = sheet.getLastRow();
+  if (last >= 2) {
+    var rows = sheet.getRange(2, 1, last - 1, 1).getValues();
+    for (var i = 0; i < rows.length; i++) {
+      if (String(rows[i][0]).trim().toLowerCase() === String(data.username).trim().toLowerCase()) {
+        return jsonResponse({ success: false, error: 'Username already exists.' });
+      }
+    }
+  }
+
+  sheet.appendRow([
+    data.username || '',
+    data.password || '',
+    data.role     || 'user',
+    new Date().toISOString(),
+    ''
+  ]);
+  return jsonResponse({ success: true });
+}
+
+/**
+ * Update an existing user row.
+ */
+function updateUser(data) {
+  var ss    = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = getOrCreateSheet(ss, SHEET_NAME_USERS);
+
+  var sheetRow = parseInt(data.rowIndex) + 2;
+  if (isNaN(sheetRow) || sheetRow < 2) {
+    return jsonResponse({ success: false, error: 'Invalid row index.' });
+  }
+
+  var existing = sheet.getRange(sheetRow, 1, 1, 5).getValues()[0];
+  sheet.getRange(sheetRow, 1, 1, 5).setValues([[
+    data.username || existing[0],
+    data.password || existing[1],   // keep old password if blank
+    data.role     || existing[2],
+    existing[3],
+    existing[4]
+  ]]);
+  return jsonResponse({ success: true });
+}
+
+/**
+ * Delete a user row.
+ */
+function deleteUser(data) {
+  var ss    = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = getOrCreateSheet(ss, SHEET_NAME_USERS);
+
+  var sheetRow = parseInt(data.rowIndex) + 2;
+  if (isNaN(sheetRow) || sheetRow < 2) {
+    return jsonResponse({ success: false, error: 'Invalid row index.' });
+  }
+
+  // Protect: never delete the last admin
+  var username = sheet.getRange(sheetRow, 1).getValue();
+  var role     = sheet.getRange(sheetRow, 3).getValue();
+  if (role === 'admin') {
+    // Count other admins
+    var last = sheet.getLastRow();
+    var adminCount = 0;
+    if (last >= 2) {
+      var roles = sheet.getRange(2, 3, last - 1, 1).getValues();
+      roles.forEach(function(r) { if (r[0] === 'admin') adminCount++; });
+    }
+    if (adminCount <= 1) {
+      return jsonResponse({ success: false, error: 'Cannot delete the last admin account.' });
+    }
+  }
+
+  sheet.deleteRow(sheetRow);
+  return jsonResponse({ success: true });
+}
+
+// ── Inventory Logic ───────────────────────────────────────────────
+
 function getInventory() {
   var ss    = SpreadsheetApp.getActiveSpreadsheet();
   var sheet = getOrCreateSheet(ss, SHEET_NAME_INVENTORY);
@@ -77,31 +243,17 @@ function getInventory() {
 
   var last = sheet.getLastRow();
   if (last < 2) {
-    return ContentService
-      .createTextOutput(JSON.stringify({ success: true, inventory: [] }))
-      .setMimeType(ContentService.MimeType.JSON);
+    return jsonResponse({ success: true, inventory: [] });
   }
 
   var rows = sheet.getRange(2, 1, last - 1, 6).getValues();
   var inventory = rows.map(function(r) {
-    return {
-      item:       r[0],
-      unit:       r[1],
-      beginQty:   r[2],
-      withdrawal: r[3],
-      balance:    r[4],
-      remarks:    r[5]
-    };
+    return { item: r[0], unit: r[1], beginQty: r[2], withdrawal: r[3], balance: r[4], remarks: r[5] };
   }).filter(function(r) { return r.item !== ''; });
 
-  return ContentService
-    .createTextOutput(JSON.stringify({ success: true, inventory: inventory }))
-    .setMimeType(ContentService.MimeType.JSON);
+  return jsonResponse({ success: true, inventory: inventory });
 }
 
-/**
- * Appends a new row to the Inventory sheet.
- */
 function addInventoryRow(data) {
   var ss    = SpreadsheetApp.getActiveSpreadsheet();
   var sheet = getOrCreateSheet(ss, SHEET_NAME_INVENTORY);
@@ -115,26 +267,17 @@ function addInventoryRow(data) {
     data.balance    != null ? data.balance    : 0,
     data.remarks    || ''
   ]);
-
-  return ContentService
-    .createTextOutput(JSON.stringify({ success: true }))
-    .setMimeType(ContentService.MimeType.JSON);
+  return jsonResponse({ success: true });
 }
 
-/**
- * Updates an existing row in the Inventory sheet (0-based rowIndex from frontend).
- */
 function updateInventoryRow(data) {
   var ss    = SpreadsheetApp.getActiveSpreadsheet();
   var sheet = getOrCreateSheet(ss, SHEET_NAME_INVENTORY);
   ensureInventoryHeader(sheet);
 
-  // rowIndex is 0-based from the frontend (maps to sheet row = rowIndex + 2)
   var sheetRow = parseInt(data.rowIndex) + 2;
   if (isNaN(sheetRow) || sheetRow < 2) {
-    return ContentService
-      .createTextOutput(JSON.stringify({ success: false, error: 'Invalid row index' }))
-      .setMimeType(ContentService.MimeType.JSON);
+    return jsonResponse({ success: false, error: 'Invalid row index' });
   }
 
   sheet.getRange(sheetRow, 1, 1, 6).setValues([[
@@ -145,31 +288,20 @@ function updateInventoryRow(data) {
     data.balance    != null ? data.balance    : 0,
     data.remarks    || ''
   ]]);
-
-  return ContentService
-    .createTextOutput(JSON.stringify({ success: true }))
-    .setMimeType(ContentService.MimeType.JSON);
+  return jsonResponse({ success: true });
 }
 
-/**
- * Deletes a row from the Inventory sheet (0-based rowIndex from frontend).
- */
 function deleteInventoryRow(data) {
   var ss    = SpreadsheetApp.getActiveSpreadsheet();
   var sheet = getOrCreateSheet(ss, SHEET_NAME_INVENTORY);
 
   var sheetRow = parseInt(data.rowIndex) + 2;
   if (isNaN(sheetRow) || sheetRow < 2) {
-    return ContentService
-      .createTextOutput(JSON.stringify({ success: false, error: 'Invalid row index' }))
-      .setMimeType(ContentService.MimeType.JSON);
+    return jsonResponse({ success: false, error: 'Invalid row index' });
   }
 
   sheet.deleteRow(sheetRow);
-
-  return ContentService
-    .createTextOutput(JSON.stringify({ success: true }))
-    .setMimeType(ContentService.MimeType.JSON);
+  return jsonResponse({ success: true });
 }
 
 function ensureInventoryHeader(sheet) {
@@ -182,75 +314,53 @@ function ensureInventoryHeader(sheet) {
 
 // ── Transactions Fetch ────────────────────────────────────────────
 
-/**
- * Returns rows from the Orders sheet as JSON for the Transactions tab.
- */
 function getTransactions() {
   var ss    = SpreadsheetApp.getActiveSpreadsheet();
   var sheet = ss.getSheetByName(SHEET_NAME_ORDERS);
   if (!sheet || sheet.getLastRow() < 2) {
-    return ContentService
-      .createTextOutput(JSON.stringify({ success: true, transactions: [] }))
-      .setMimeType(ContentService.MimeType.JSON);
+    return jsonResponse({ success: true, transactions: [] });
   }
 
   var rows = sheet.getRange(2, 1, sheet.getLastRow() - 1, 5).getValues();
   var txns = rows.map(function(r) {
-    return {
-      orderNum: r[0],
-      time:     r[1],
-      items:    r[2],
-      total:    r[4],
-      paid:     0,
-      change:   0
-    };
+    return { orderNum: r[0], time: r[1], items: r[2], total: r[4], paid: 0, change: 0 };
   });
-
-  return ContentService
-    .createTextOutput(JSON.stringify({ success: true, transactions: txns }))
-    .setMimeType(ContentService.MimeType.JSON);
+  return jsonResponse({ success: true, transactions: txns });
 }
 
-// ── Core Logic ───────────────────────────────────────────────────
+// ── Core Order Logic ─────────────────────────────────────────────
 
-/**
- * Writes the order to both the Orders and Order Items sheets.
- * Creates and formats sheets if they don't exist yet.
- */
 function saveOrder(data) {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
 
-  // ── Orders sheet ──
   var ordersSheet = getOrCreateSheet(ss, SHEET_NAME_ORDERS);
   ensureOrdersHeader(ordersSheet);
 
   var orderRow = [
-    data.orderNum                             || '',          // A: Order #
-    formatDateTime(data.timestamp)            || '',          // B: Date/Time
-    data.items ? data.items.length : 0,                       // C: # of line items
-    data.items ? data.items.reduce(function(s, i){ return s + i.qty; }, 0) : 0, // D: total qty
-    data.total != null ? data.total : 0                       // E: Grand Total
+    data.orderNum                             || '',
+    formatDateTime(data.timestamp)            || '',
+    data.items ? data.items.length : 0,
+    data.items ? data.items.reduce(function(s, i){ return s + i.qty; }, 0) : 0,
+    data.total != null ? data.total : 0
   ];
   ordersSheet.appendRow(orderRow);
 
-  // ── Order Items sheet ──
   var itemsSheet = getOrCreateSheet(ss, SHEET_NAME_ITEMS);
   ensureItemsHeader(itemsSheet);
 
   if (data.items && data.items.length > 0) {
     data.items.forEach(function(item) {
       itemsSheet.appendRow([
-        data.orderNum     || '',     // A: Order #
-        formatDateTime(data.timestamp) || '',  // B: Date/Time
-        item.name         || '',     // C: Product
-        item.qty          || 0,      // D: Qty
-        item.price        || 0,      // E: Unit Price
-        item.subtotal     || 0       // F: Subtotal
+        data.orderNum     || '',
+        formatDateTime(data.timestamp) || '',
+        item.name         || '',
+        item.qty          || 0,
+        item.price        || 0,
+        item.subtotal     || 0
       ]);
     });
   }
 
-  // ── Auto-format the sheets (first time) ──
   autoFormatSheets(ordersSheet, itemsSheet);
 }
 
@@ -258,9 +368,7 @@ function saveOrder(data) {
 
 function getOrCreateSheet(ss, name) {
   var sheet = ss.getSheetByName(name);
-  if (!sheet) {
-    sheet = ss.insertSheet(name);
-  }
+  if (!sheet) sheet = ss.insertSheet(name);
   return sheet;
 }
 
@@ -292,14 +400,19 @@ function styleHeaderRow(sheet, numCols) {
 }
 
 function autoFormatSheets(ordersSheet, itemsSheet) {
-  // Auto-resize columns
   try {
     ordersSheet.autoResizeColumns(1, 5);
     itemsSheet.autoResizeColumns(1, 6);
   } catch(e) { /* ignore */ }
 }
 
-// ── Date Formatting ───────────────────────────────────────────────
+// ── Helpers ───────────────────────────────────────────────────────
+
+function jsonResponse(obj) {
+  return ContentService
+    .createTextOutput(JSON.stringify(obj))
+    .setMimeType(ContentService.MimeType.JSON);
+}
 
 function formatDateTime(isoString) {
   if (!isoString) return new Date().toLocaleString('en-PH', { timeZone: 'Asia/Manila' });
@@ -313,7 +426,6 @@ function formatDateTime(isoString) {
 
 // ══════════════════════════════════════════════════════════════════
 //  OPTIONAL: Daily Summary Email
-//  Uncomment and set up a time-driven trigger → onOpen()
 // ══════════════════════════════════════════════════════════════════
 
 /*

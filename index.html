@@ -1257,11 +1257,407 @@
   .inv-input:focus { border-color: var(--accent); }
   .inv-input.inv-readonly { color: var(--text3); cursor: not-allowed; }
   select.inv-input { appearance: auto; }
+
+  /* ─── Login Gate ─── */
+  #loginGate {
+    position: fixed; inset: 0;
+    background: var(--bg);
+    z-index: 999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  #loginGate.hidden { display: none; }
+  .login-box {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 20px;
+    padding: 40px 36px 36px;
+    max-width: 380px;
+    width: 100%;
+    box-shadow: var(--shadow-lg);
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    animation: loginPop 0.4s cubic-bezier(0.34,1.56,0.64,1);
+  }
+  @keyframes loginPop {
+    from { opacity: 0; transform: scale(0.88) translateY(24px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
+  }
+  .login-logo {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+  .login-logo-icon {
+    width: 56px; height: 56px;
+    background: var(--accent);
+    border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Space Mono', monospace;
+    font-size: 20px; font-weight: 700;
+    color: #111;
+  }
+  .login-logo-title {
+    font-family: 'Space Mono', monospace;
+    font-size: 18px; font-weight: 700;
+    color: var(--text);
+    letter-spacing: 0.04em;
+  }
+  .login-logo-title span { color: var(--accent); }
+  .login-logo-sub {
+    font-size: 12px;
+    color: var(--text3);
+    font-family: 'Space Mono', monospace;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .login-field {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+  .login-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text3);
+    font-family: 'Space Mono', monospace;
+  }
+  .login-input {
+    padding: 12px 14px;
+    background: var(--surface2);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    font-size: 15px;
+    font-family: 'DM Sans', sans-serif;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .login-input:focus { border-color: var(--accent); }
+  .login-btn {
+    padding: 14px;
+    background: var(--accent);
+    color: #111;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    transition: all 0.18s;
+    margin-top: 4px;
+  }
+  .login-btn:hover { background: #f5d55e; transform: translateY(-1px); }
+  .login-btn:active { transform: scale(0.98); }
+  .login-error {
+    background: rgba(255,77,109,0.12);
+    border: 1.5px solid rgba(255,77,109,0.3);
+    color: var(--red);
+    border-radius: var(--radius-sm);
+    padding: 10px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    text-align: center;
+    display: none;
+  }
+  .login-error.show { display: block; }
+
+  /* ─── User logged-in badge in header ─── */
+  .user-badge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 5px 12px 5px 8px;
+    font-size: 13px;
+    color: var(--text2);
+  }
+  .user-badge-dot {
+    width: 8px; height: 8px;
+    background: var(--green);
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .user-badge-name {
+    font-weight: 600;
+    color: var(--text);
+    font-size: 13px;
+    max-width: 100px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .user-badge-role {
+    font-size: 10px;
+    font-family: 'Space Mono', monospace;
+    color: var(--accent);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .logout-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 5px 12px;
+    font-size: 12px;
+    color: var(--text3);
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    transition: all 0.15s;
+  }
+  .logout-btn:hover { border-color: var(--red); color: var(--red); }
+
+  /* ─── Admin / Users Panel ─── */
+  .users-panel {
+    display: none;
+    flex-direction: column;
+    gap: 0;
+    overflow-y: auto;
+    flex: 1;
+  }
+  .users-panel.active { display: flex; }
+  .users-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 18px 20px 14px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg);
+    flex-shrink: 0;
+  }
+  .users-title-row { display: flex; flex-direction: column; gap: 2px; }
+  .users-panel-title {
+    font-family: 'Space Mono', monospace;
+    font-size: 13px; font-weight: 700;
+    letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--text);
+  }
+  .users-panel-sub { font-size: 11px; color: var(--text3); font-family: 'Space Mono', monospace; }
+  .users-table-wrap { flex: 1; overflow: auto; padding: 16px 20px 24px; }
+  .users-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    min-width: 540px;
+  }
+  .users-table thead tr { background: var(--surface2); }
+  .users-table th {
+    padding: 11px 14px; text-align: left;
+    font-family: 'Space Mono', monospace;
+    font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--text3); border-bottom: 2px solid var(--border);
+    white-space: nowrap;
+  }
+  .users-table td {
+    padding: 12px 14px; border-bottom: 1px solid var(--border);
+    color: var(--text); vertical-align: middle;
+  }
+  .users-table tbody tr:hover { background: var(--surface2); }
+  .users-table tbody tr:last-child td { border-bottom: none; }
+  .role-badge {
+    display: inline-block;
+    padding: 2px 9px;
+    border-radius: 20px;
+    font-family: 'Space Mono', monospace;
+    font-size: 10px; font-weight: 700;
+    letter-spacing: 0.06em; text-transform: uppercase;
+  }
+  .role-badge.admin { background: rgba(245,200,66,0.15); color: var(--accent); }
+  .role-badge.user  { background: rgba(76,222,143,0.12); color: var(--green); }
+  .users-empty-row { text-align: center; padding: 40px !important; }
+  .users-empty { display: flex; flex-direction: column; align-items: center; gap: 10px; color: var(--text3); font-size: 13px; }
+
+  /* User Modal */
+  .user-modal { max-width: 420px; text-align: left; }
+  .user-form { display: flex; flex-direction: column; gap: 14px; margin-top: 16px; }
+  .user-field { display: flex; flex-direction: column; gap: 5px; }
+  .user-label {
+    font-size: 11px; font-weight: 600; letter-spacing: 0.06em;
+    text-transform: uppercase; color: var(--text3);
+    font-family: 'Space Mono', monospace;
+  }
+  .user-input {
+    padding: 10px 12px;
+    background: var(--surface2);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text); font-size: 14px;
+    font-family: 'DM Sans', sans-serif;
+    outline: none; transition: border-color 0.15s; width: 100%;
+  }
+  .user-input:focus { border-color: var(--accent); }
+  select.user-input { appearance: auto; }
+  .user-hint { font-size: 11px; color: var(--text3); margin-top: 2px; }
+  .user-modal-error {
+    background: rgba(255,77,109,0.1); border: 1.5px solid rgba(255,77,109,0.3);
+    color: var(--red); border-radius: var(--radius-sm);
+    padding: 8px 12px; font-size: 12px; font-weight: 600; display: none;
+  }
+  .user-modal-error.show { display: block; }
+
+  /* ─── Transaction Row clickable affordance ─── */
+  .txn-row { cursor: pointer; }
+  .txn-row:hover { background: var(--surface2); }
+  .txn-row:active { background: var(--surface3); }
+
+  /* ─── Transaction Detail Modal ─── */
+  .txn-detail-modal { max-width: 460px; text-align: left; padding: 26px; }
+  .txn-detail-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  .txn-detail-title { display: flex; align-items: center; gap: 10px; }
+  .txn-detail-title-icon { font-size: 24px; }
+  .txn-detail-title-text {
+    font-family: 'Space Mono', monospace;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text);
+  }
+  .txn-detail-time {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--text3);
+    text-align: right;
+  }
+  .txn-detail-section-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text3);
+    margin-bottom: 8px;
+  }
+  .txn-detail-items {
+    background: var(--surface2);
+    border-radius: var(--radius-sm);
+    padding: 12px;
+    margin-bottom: 16px;
+    max-height: 220px;
+    overflow-y: auto;
+  }
+  .txn-detail-item {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    align-items: baseline;
+    gap: 10px;
+    padding: 6px 0;
+    border-bottom: 1px dashed var(--border);
+    font-size: 13px;
+  }
+  .txn-detail-item:last-child { border-bottom: none; }
+  .txn-detail-item-name { color: var(--text); font-weight: 600; }
+  .txn-detail-item-qty {
+    font-family: 'Space Mono', monospace;
+    color: var(--text2);
+    font-size: 12px;
+  }
+  .txn-detail-item-sub {
+    font-family: 'Space Mono', monospace;
+    color: var(--accent);
+    font-weight: 700;
+    text-align: right;
+    min-width: 70px;
+  }
+  .txn-detail-summary {
+    background: #0a0a0e;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 14px 16px;
+    margin-bottom: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .light .txn-detail-summary { background: #e8e7ef; }
+  .txn-detail-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+  .txn-detail-row .label {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text3);
+  }
+  .txn-detail-row .value {
+    font-family: 'Space Mono', monospace;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text);
+  }
+  .txn-detail-row.total  .value { color: var(--accent); font-size: 20px; }
+  .txn-detail-row.paid   .value { color: var(--text); }
+  .txn-detail-row.change .value { color: var(--green); font-size: 20px; }
+  .txn-detail-divider {
+    height: 1px;
+    background: var(--border);
+    opacity: 0.5;
+    margin: 2px 0;
+  }
+  .txn-detail-close {
+    width: 100%;
+    padding: 12px;
+    background: var(--surface2);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    transition: all 0.15s;
+  }
+  .txn-detail-close:hover { background: var(--surface3); border-color: var(--accent); }
 </style>
 </head><body>
 
+<!-- Login Gate -->
+<div id="loginGate">
+  <div class="login-box">
+    <div class="login-logo">
+      <div class="login-logo-icon">AJ</div>
+      <div class="login-logo-title">AJ Medina <span>POS</span></div>
+      <div class="login-logo-sub">Sign in to continue</div>
+    </div>
+    <div class="login-form">
+      <div class="login-field">
+        <label class="login-label">Username</label>
+        <input class="login-input" id="loginUsername" type="text" placeholder="Enter username" autocomplete="username" onkeydown="if(event.key==='Enter')doLogin()">
+      </div>
+      <div class="login-field">
+        <label class="login-label">Password</label>
+        <input class="login-input" id="loginPassword" type="password" placeholder="Enter password" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
+      </div>
+      <div class="login-error" id="loginError">Invalid username or password.</div>
+      <button class="login-btn" id="loginBtn" onclick="doLogin()">Sign In</button>
+    </div>
+  </div>
+</div>
+
 <!-- App Shell -->
-<div class="app" id="app">
+<div class="app" id="app" style="display:none">
 
   <!-- Header -->
   <header>
@@ -1271,6 +1667,12 @@
     </div>
     <div class="header-right">
       <span class="time-display" id="timeDisplay">01:48:39 AM</span>
+      <div class="user-badge" id="userBadge">
+        <span class="user-badge-dot"></span>
+        <span class="user-badge-name" id="userBadgeName">—</span>
+        <span class="user-badge-role" id="userBadgeRole">user</span>
+      </div>
+      <button class="logout-btn" onclick="doLogout()">Logout</button>
       <button class="theme-btn" id="themeBtn" onclick="toggleTheme()">
         <span id="themeIcon">☀️</span>
         <span id="themeLabel">Light</span>
@@ -1296,6 +1698,9 @@
       </button>
       <button class="cat-tab" id="invTab" onclick="switchToInventory(this)">
         <span class="cat-icon">📦</span> Inventory
+      </button>
+      <button class="cat-tab admin-only-tab" id="adminTab" onclick="switchToAdmin(this)" style="display:none">
+        <span class="cat-icon">👤</span> Admin
       </button>
     </div>
 
@@ -1424,6 +1829,39 @@
       </div>
 
     </div><!-- end inv-panel -->
+
+    <!-- Admin / Users Panel -->
+    <div class="users-panel" id="panel-admin">
+      <div class="users-toolbar">
+        <div class="users-title-row">
+          <span class="users-panel-title">👤 User Management</span>
+          <span class="users-panel-sub" id="usersSyncStatus">Loading…</span>
+        </div>
+        <div class="inv-toolbar-actions">
+          <button class="inv-btn inv-btn-secondary" onclick="fetchUsers()">⟳ Refresh</button>
+          <button class="inv-btn inv-btn-primary" onclick="openUserModal()">+ Add User</button>
+        </div>
+      </div>
+      <div class="users-table-wrap">
+        <table class="users-table" id="usersTable">
+          <thead>
+            <tr>
+              <th>USERNAME</th>
+              <th>ROLE</th>
+              <th>CREATED</th>
+              <th>LAST LOGIN</th>
+              <th>ACTIONS</th>
+            </tr>
+          </thead>
+          <tbody id="usersTableBody">
+            <tr><td colspan="5" class="users-empty-row">
+              <div class="users-empty"><div style="font-size:24px;opacity:0.4">👤</div><div>Loading users…</div></div>
+            </td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div><!-- end panel-admin -->
+
   </main>
 
   <!-- Cart Panel -->
@@ -1535,6 +1973,41 @@
   </div>
 </div>
 
+<!-- Transaction Detail Modal -->
+<div class="modal-overlay" id="txnDetailModal" onclick="if(event.target===this)closeTxnDetail()">
+  <div class="modal txn-detail-modal">
+    <div class="txn-detail-header">
+      <div class="txn-detail-title">
+        <span class="txn-detail-title-icon">🧾</span>
+        <span class="txn-detail-title-text" id="txnDetailOrderNum">Order #—</span>
+      </div>
+      <div class="txn-detail-time" id="txnDetailTime">—</div>
+    </div>
+
+    <div class="txn-detail-section-label">Items</div>
+    <div class="txn-detail-items" id="txnDetailItems"></div>
+
+    <div class="txn-detail-summary">
+      <div class="txn-detail-row total">
+        <span class="label">Total Amount</span>
+        <span class="value" id="txnDetailTotal">₱0.00</span>
+      </div>
+      <div class="txn-detail-divider"></div>
+      <div class="txn-detail-row paid">
+        <span class="label">Total Amount Paid</span>
+        <span class="value" id="txnDetailPaid">₱0.00</span>
+      </div>
+      <div class="txn-detail-divider"></div>
+      <div class="txn-detail-row change">
+        <span class="label">Change</span>
+        <span class="value" id="txnDetailChange">₱0.00</span>
+      </div>
+    </div>
+
+    <button class="txn-detail-close" onclick="closeTxnDetail()">Close</button>
+  </div>
+</div>
+
 <!-- Inventory Add/Edit Modal -->
 <div class="modal-overlay" id="invModal">
   <div class="modal inv-modal">
@@ -1602,6 +2075,38 @@
   </div>
 </div>
 
+<!-- User Add/Edit Modal -->
+<div class="modal-overlay" id="userModal">
+  <div class="modal user-modal">
+    <div class="modal-icon" id="userModalIcon">👤</div>
+    <h3 id="userModalTitle">Add User</h3>
+    <div class="user-form">
+      <input type="hidden" id="userEditRow">
+      <div class="user-field">
+        <label class="user-label">Username</label>
+        <input class="user-input" id="userUsername" type="text" placeholder="e.g. cashier1" autocomplete="off">
+      </div>
+      <div class="user-field">
+        <label class="user-label">Password</label>
+        <input class="user-input" id="userPassword" type="text" placeholder="Enter password">
+        <span class="user-hint" id="userPasswordHint"></span>
+      </div>
+      <div class="user-field">
+        <label class="user-label">Role</label>
+        <select class="user-input" id="userRole">
+          <option value="user">User (Cashier)</option>
+          <option value="admin">Admin</option>
+        </select>
+      </div>
+      <div class="user-modal-error" id="userModalError"></div>
+    </div>
+    <div class="modal-actions" style="margin-top:18px">
+      <button class="modal-btn cancel" onclick="closeUserModal()">Cancel</button>
+      <button class="modal-btn confirm" onclick="saveUser()">💾 Save</button>
+    </div>
+  </div>
+</div>
+
 <!-- Toast -->
 <div class="toast" id="toast">
   <span class="dot"></span>
@@ -1609,6 +2114,285 @@
 </div>
 
 <script>
+// ─── Auth State ──────────────────────────────────────────────────
+let currentUser = null;   // { username, role }
+
+// ─── Login / Logout ──────────────────────────────────────────────
+async function doLogin() {
+  const username = document.getElementById('loginUsername').value.trim();
+  const password = document.getElementById('loginPassword').value.trim();
+  const errEl    = document.getElementById('loginError');
+  const btnEl    = document.getElementById('loginBtn');
+
+  if (!username || !password) {
+    errEl.textContent = 'Please enter both username and password.';
+    errEl.classList.add('show');
+    return;
+  }
+
+  errEl.classList.remove('show');
+  btnEl.disabled = true;
+  btnEl.textContent = 'Signing in…';
+
+  // Offline mode (no GAS URL) — allow only hardcoded admin
+  if (!GAS_URL || GAS_URL === 'YOUR_GAS_WEB_APP_URL_HERE') {
+    if (username === 'admin' && password === 'admin123') {
+      onLoginSuccess({ username: 'admin', role: 'admin' });
+    } else {
+      errEl.textContent = 'Invalid username or password.';
+      errEl.classList.add('show');
+    }
+    btnEl.disabled = false;
+    btnEl.textContent = 'Sign In';
+    return;
+  }
+
+  try {
+    const res  = await fetch(GAS_URL, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ action: 'login', username, password })
+    });
+    const json = await res.json();
+    if (json.success) {
+      onLoginSuccess({ username: json.username, role: json.role });
+    } else {
+      errEl.textContent = json.error || 'Invalid username or password.';
+      errEl.classList.add('show');
+    }
+  } catch (e) {
+    errEl.textContent = 'Could not connect. Check your GAS URL.';
+    errEl.classList.add('show');
+  }
+
+  btnEl.disabled = false;
+  btnEl.textContent = 'Sign In';
+}
+
+function onLoginSuccess(user) {
+  currentUser = user;
+  document.getElementById('loginGate').classList.add('hidden');
+  document.getElementById('app').style.display = '';
+
+  // Update header badge
+  document.getElementById('userBadgeName').textContent = user.username;
+  document.getElementById('userBadgeRole').textContent = user.role;
+
+  // Show Admin tab only for admins
+  const adminTab = document.getElementById('adminTab');
+  if (user.role === 'admin') {
+    adminTab.style.display = '';
+  } else {
+    adminTab.style.display = 'none';
+  }
+
+  // Clear login form
+  document.getElementById('loginUsername').value = '';
+  document.getElementById('loginPassword').value = '';
+}
+
+function doLogout() {
+  currentUser = null;
+  // Reset app UI to POS tab
+  switchCategory('fries', document.querySelector('.cat-tab'));
+  clearOrder();
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('loginGate').classList.remove('hidden');
+  document.getElementById('loginError').classList.remove('show');
+  showToast('👋 Logged out');
+}
+
+// ─── Admin Tab ───────────────────────────────────────────────────
+function switchToAdmin(tab) {
+  if (!currentUser || currentUser.role !== 'admin') {
+    showToast('⛔ Admin only');
+    return;
+  }
+  document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.category-panel').forEach(p => p.classList.remove('active'));
+  tab.classList.add('active');
+
+  document.querySelector('.products-area').style.display = 'none';
+  document.getElementById('panel-txn').classList.remove('active');
+  document.getElementById('panel-inv').classList.remove('active');
+  document.getElementById('panel-admin').classList.add('active');
+
+  fetchUsers();
+}
+
+// ─── Users CRUD ──────────────────────────────────────────────────
+let usersData = [];
+
+async function fetchUsers() {
+  setUsersSyncStatus('⏳ Loading…');
+  if (!GAS_URL || GAS_URL === 'YOUR_GAS_WEB_APP_URL_HERE') {
+    renderUsersTable([]);
+    setUsersSyncStatus('⚠️ No GAS URL set');
+    return;
+  }
+  try {
+    const res  = await fetch(GAS_URL + '?action=getUsers');
+    const json = await res.json();
+    if (json.success) {
+      usersData = json.users || [];
+      renderUsersTable(usersData);
+      setUsersSyncStatus('✅ Synced ' + new Date().toLocaleTimeString('en-PH'));
+    } else {
+      renderUsersTable([]);
+      setUsersSyncStatus('⚠️ ' + (json.error || 'No data'));
+    }
+  } catch (e) {
+    renderUsersTable([]);
+    setUsersSyncStatus('❌ Fetch failed');
+  }
+}
+
+function renderUsersTable(users) {
+  const tbody = document.getElementById('usersTableBody');
+  if (!users || users.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="5" class="users-empty-row">
+      <div class="users-empty"><div style="font-size:24px;opacity:0.4">👤</div>No users found.</div>
+    </td></tr>`;
+    return;
+  }
+  tbody.innerHTML = users.map((u, i) => {
+    const isMe = currentUser && u.username === currentUser.username;
+    const created = u.createdAt ? new Date(u.createdAt).toLocaleDateString('en-PH') : '—';
+    const lastLogin = u.lastLogin ? new Date(u.lastLogin).toLocaleDateString('en-PH') : 'Never';
+    return `<tr>
+      <td><strong>${u.username}</strong>${isMe ? ' <span style="font-size:10px;color:var(--accent);font-family:\'Space Mono\',monospace">(you)</span>' : ''}</td>
+      <td><span class="role-badge ${u.role}">${u.role}</span></td>
+      <td style="font-size:12px;color:var(--text2)">${created}</td>
+      <td style="font-size:12px;color:var(--text2)">${lastLogin}</td>
+      <td>
+        <div class="inv-action-btns">
+          <button class="inv-action-btn" onclick="editUser(${i})">✏️ Edit</button>
+          ${!isMe ? `<button class="inv-action-btn del" onclick="deleteUserRow(${i})">✕</button>` : ''}
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function setUsersSyncStatus(msg) {
+  document.getElementById('usersSyncStatus').textContent = msg;
+}
+
+function openUserModal(editIdx) {
+  const isEdit = editIdx !== undefined;
+  document.getElementById('userModalTitle').textContent = isEdit ? 'Edit User' : 'Add User';
+  document.getElementById('userModalIcon').textContent  = isEdit ? '✏️' : '👤';
+  document.getElementById('userEditRow').value = isEdit ? editIdx : '';
+  document.getElementById('userModalError').classList.remove('show');
+
+  if (isEdit) {
+    const u = usersData[editIdx];
+    document.getElementById('userUsername').value = u.username || '';
+    document.getElementById('userPassword').value = '';
+    document.getElementById('userRole').value     = u.role || 'user';
+    document.getElementById('userPasswordHint').textContent = 'Leave blank to keep existing password.';
+  } else {
+    document.getElementById('userUsername').value = '';
+    document.getElementById('userPassword').value = '';
+    document.getElementById('userRole').value     = 'user';
+    document.getElementById('userPasswordHint').textContent = '';
+  }
+
+  document.getElementById('userModal').classList.add('open');
+}
+
+function closeUserModal() {
+  document.getElementById('userModal').classList.remove('open');
+}
+
+function editUser(idx) {
+  openUserModal(idx);
+}
+
+async function saveUser() {
+  const username = document.getElementById('userUsername').value.trim();
+  const password = document.getElementById('userPassword').value.trim();
+  const role     = document.getElementById('userRole').value;
+  const editIdx  = document.getElementById('userEditRow').value;
+  const errEl    = document.getElementById('userModalError');
+
+  errEl.classList.remove('show');
+
+  if (!username) { errEl.textContent = 'Username is required.'; errEl.classList.add('show'); return; }
+  if (!editIdx && !password) { errEl.textContent = 'Password is required for new users.'; errEl.classList.add('show'); return; }
+
+  const payload = { username, role };
+  if (password) payload.password = password;
+
+  let action;
+  if (editIdx !== '') {
+    action = 'updateUser';
+    payload.action = action;
+    payload.rowIndex = parseInt(editIdx);
+  } else {
+    action = 'createUser';
+    payload.action = action;
+  }
+
+  closeUserModal();
+
+  if (!GAS_URL || GAS_URL === 'YOUR_GAS_WEB_APP_URL_HERE') {
+    showToast('⚠️ No GAS URL — user not saved');
+    return;
+  }
+
+  setUsersSyncStatus('⏳ Saving…');
+  try {
+    const res  = await fetch(GAS_URL, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify(payload)
+    });
+    const json = await res.json();
+    if (json.success) {
+      showToast(editIdx !== '' ? '✅ User updated' : '✅ User created');
+      await fetchUsers();
+    } else {
+      showToast('❌ ' + (json.error || 'Save failed'));
+      setUsersSyncStatus('❌ Save error');
+    }
+  } catch (e) {
+    showToast('❌ Network error');
+    setUsersSyncStatus('❌ Error');
+  }
+}
+
+async function deleteUserRow(idx) {
+  const u = usersData[idx];
+  if (!confirm(`Delete user "${u.username}"? This cannot be undone.`)) return;
+
+  if (!GAS_URL || GAS_URL === 'YOUR_GAS_WEB_APP_URL_HERE') {
+    usersData.splice(idx, 1);
+    renderUsersTable(usersData);
+    showToast('🗑 User removed locally');
+    return;
+  }
+
+  setUsersSyncStatus('⏳ Deleting…');
+  try {
+    const res  = await fetch(GAS_URL, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ action: 'deleteUser', rowIndex: idx })
+    });
+    const json = await res.json();
+    if (json.success) {
+      showToast('🗑 User deleted');
+      await fetchUsers();
+    } else {
+      showToast('❌ ' + (json.error || 'Delete failed'));
+      setUsersSyncStatus('❌ Error');
+    }
+  } catch (e) {
+    showToast('❌ Network error');
+  }
+}
+
 // ─── Product Data ───────────────────────────────────────────────
 const PRODUCTS = {
   fries: [
@@ -1653,6 +2437,16 @@ document.addEventListener('DOMContentLoaded', () => {
   setInterval(updateClock, 1000);
   updateOrderNum();
   updatePaidInputMode();
+
+  // Inv modal listeners
+  document.getElementById('invItem').addEventListener('change', function() {
+    toggleOtherField(this.value);
+  });
+  document.getElementById('invBeginQty').addEventListener('input', recalcBalance);
+  document.getElementById('invWithdrawal').addEventListener('input', recalcBalance);
+
+  // Focus username on login screen
+  document.getElementById('loginUsername').focus();
 });
 
 function updateClock() {
@@ -1871,6 +2665,7 @@ function switchToTransactions(tab) {
   const txnPanel = document.getElementById('panel-txn');
   productsArea.style.display = 'none';
   document.getElementById('panel-inv').classList.remove('active');
+  document.getElementById('panel-admin').classList.remove('active');
   txnPanel.classList.add('active');
 
   // Fetch persisted transactions from the sheet
@@ -1878,10 +2673,11 @@ function switchToTransactions(tab) {
 }
 
 function switchCategory(category, tab) {
-  // Hide txn panel and inv panel, show products area
+  // Hide txn panel and inv panel and admin panel, show products area
   document.querySelector('.products-area').style.display = '';
   document.getElementById('panel-txn').classList.remove('active');
   document.getElementById('panel-inv').classList.remove('active');
+  document.getElementById('panel-admin').classList.remove('active');
 
   document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('active'));
   document.querySelectorAll('.category-panel').forEach(p => p.classList.remove('active'));
@@ -1994,6 +2790,14 @@ function processTransaction() {
   const txn = {
     orderNum,
     items: cart.map(i => `${i.product.name}×${i.qty}`).join(', '),
+    // Full per-line details for the click-to-view modal
+    details: cart.map(({ product, qty }) => ({
+      name:     product.name,
+      qty,
+      price:    product.price,
+      subtotal: product.price * qty,
+      emoji:    product.emoji
+    })),
     total,
     paid,
     change,
@@ -2074,6 +2878,7 @@ async function fetchSheetTransactions() {
         total    : parseFloat(r.total)  || 0,
         paid     : parseFloat(r.paid)   || 0,
         change   : parseFloat(r.change) || 0,
+        details  : Array.isArray(r.details) ? r.details : [],
         fromSheet: true
       }));
     }
@@ -2086,6 +2891,10 @@ async function fetchSheetTransactions() {
   renderTransactionHistory();
 }
 
+// Combined transaction list kept in module scope so the detail modal can
+// look up the clicked row by index.
+let combinedTxns = [];
+
 function renderTransactionHistory() {
   const list  = document.getElementById('txnList');
   const badge = document.getElementById('txnCountBadge');
@@ -2095,18 +2904,18 @@ function renderTransactionHistory() {
   const sessionOrderNums = new Set(transactions.map(t => String(t.orderNum)));
   const filteredSheet    = sheetTransactions.filter(t => !sessionOrderNums.has(String(t.orderNum)));
   // Combined list newest-first: session rows already newest-first; sheet rows are oldest-first so reverse them.
-  const combined = [...transactions, ...filteredSheet.reverse()];
+  combinedTxns = [...transactions, ...filteredSheet.reverse()];
 
-  badge.textContent = `${combined.length} txn${combined.length !== 1 ? 's' : ''}`;
+  badge.textContent = `${combinedTxns.length} txn${combinedTxns.length !== 1 ? 's' : ''}`;
 
-  if (combined.length === 0) {
+  if (combinedTxns.length === 0) {
     list.innerHTML = `<div class="txn-empty"><div class="txn-empty-icon">🧾</div>No transactions yet today.</div>`;
-    updateDayStats(combined);
+    updateDayStats(combinedTxns);
     return;
   }
 
-  list.innerHTML = combined.map(t => `
-    <div class="txn-row">
+  list.innerHTML = combinedTxns.map((t, i) => `
+    <div class="txn-row" onclick="openTxnDetail(${i})" title="View order details">
       <span class="txn-row-num">#${t.orderNum}</span>
       <div class="txn-row-info">
         <div class="txn-row-time">${t.time}</div>
@@ -2119,7 +2928,64 @@ function renderTransactionHistory() {
     </div>
   `).join('');
 
-  updateDayStats(combined);
+  updateDayStats(combinedTxns);
+}
+
+// ─── Transaction Detail Modal ────────────────────────────────────
+function openTxnDetail(index) {
+  const t = combinedTxns[index];
+  if (!t) return;
+
+  document.getElementById('txnDetailOrderNum').textContent = `Order #${t.orderNum}`;
+  document.getElementById('txnDetailTime').textContent     = t.time || '—';
+
+  // Build items list. Prefer the structured `details` array (full session
+  // orders + sheet orders that include Order Items rows); fall back to the
+  // legacy comma-separated `items` string.
+  const itemsContainer = document.getElementById('txnDetailItems');
+  if (Array.isArray(t.details) && t.details.length > 0) {
+    itemsContainer.innerHTML = t.details.map(d => {
+      const name  = (d.emoji ? d.emoji + ' ' : '') + (d.name || 'Item');
+      const qty   = Number(d.qty)   || 0;
+      const price = Number(d.price) || 0;
+      const sub   = Number(d.subtotal != null ? d.subtotal : qty * price) || 0;
+      return `
+        <div class="txn-detail-item">
+          <span class="txn-detail-item-name">${name}</span>
+          <span class="txn-detail-item-qty">${qty} × ₱${price.toFixed(2)}</span>
+          <span class="txn-detail-item-sub">₱${sub.toFixed(2)}</span>
+        </div>`;
+    }).join('');
+  } else if (t.items) {
+    // Fallback: parse "Combo×1, Small Fries×2" into rows without prices.
+    const parts = String(t.items).split(',').map(s => s.trim()).filter(Boolean);
+    itemsContainer.innerHTML = parts.map(p => {
+      const m = p.match(/^(.*?)[x×*](\d+)$/i);
+      const name = m ? m[1].trim() : p;
+      const qty  = m ? m[2] : '1';
+      return `
+        <div class="txn-detail-item">
+          <span class="txn-detail-item-name">${name}</span>
+          <span class="txn-detail-item-qty">× ${qty}</span>
+          <span class="txn-detail-item-sub">—</span>
+        </div>`;
+    }).join('') || `<div style="text-align:center;color:var(--text3);font-size:13px;padding:8px">No item details available.</div>`;
+  } else {
+    itemsContainer.innerHTML = `<div style="text-align:center;color:var(--text3);font-size:13px;padding:8px">No item details available.</div>`;
+  }
+
+  const total  = Number(t.total)  || 0;
+  const paid   = Number(t.paid)   || 0;
+  const change = Number(t.change) || 0;
+  document.getElementById('txnDetailTotal').textContent  = `₱${total.toLocaleString('en-PH', {minimumFractionDigits:2})}`;
+  document.getElementById('txnDetailPaid').textContent   = `₱${paid.toLocaleString('en-PH', {minimumFractionDigits:2})}`;
+  document.getElementById('txnDetailChange').textContent = `₱${change.toLocaleString('en-PH', {minimumFractionDigits:2})}`;
+
+  document.getElementById('txnDetailModal').classList.add('open');
+}
+
+function closeTxnDetail() {
+  document.getElementById('txnDetailModal').classList.remove('open');
 }
 
 function updateDayStats(combined) {
@@ -2144,6 +3010,7 @@ function switchToInventory(tab) {
 
   document.querySelector('.products-area').style.display = 'none';
   document.getElementById('panel-txn').classList.remove('active');
+  document.getElementById('panel-admin').classList.remove('active');
   document.getElementById('panel-inv').classList.add('active');
 
   fetchInventory();
@@ -2237,13 +3104,6 @@ function closeInvModal() {
   document.getElementById('invModal').classList.remove('open');
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('invItem').addEventListener('change', function() {
-    toggleOtherField(this.value);
-  });
-  document.getElementById('invBeginQty').addEventListener('input', recalcBalance);
-  document.getElementById('invWithdrawal').addEventListener('input', recalcBalance);
-});
 
 function toggleOtherField(val) {
   document.getElementById('invItemOtherWrap').style.display = val === 'Other' ? '' : 'none';
