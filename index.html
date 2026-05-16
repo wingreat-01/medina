@@ -2633,6 +2633,9 @@ function removeItem(productId) {
 
 function clearOrder() {
   cart = [];
+  paidRaw = '0';
+  const input = document.getElementById('paidInput');
+  if (input) input.value = '';
   document.querySelectorAll('.product-card').forEach(c => c.classList.remove('in-cart'));
   updateCart();
   showToast('🗑 Order cleared');
@@ -2819,12 +2822,10 @@ function switchCategory(category, tab) {
 function refreshRegister() {
   const total = cart.reduce((s, i) => s + i.product.price * i.qty, 0);
 
-  // Reset paid on each cart change
-  paidRaw = '0';
-  const input = document.getElementById('paidInput');
-  if (input) input.value = '';
+  // Re-render paid display without resetting the entered amount
+  // (paidRaw is only reset after a completed transaction in clearOrder)
   renderPaid();
-  updateChangeDisplay(total);
+  updateChangeDisplay(total, parseInt(paidRaw) || 0);
 }
 
 function renderPaid() {
@@ -2853,6 +2854,9 @@ function handlePaidInput(rawVal) {
   document.getElementById('paidDisplay').classList.toggle('insufficient', val > 0 && val < total);
   document.getElementById('regPaidDisplay').textContent = `₱${val.toLocaleString('en-PH', {minimumFractionDigits:2})}`;
   updateChangeDisplay(total, val);
+  // Ensure paidRaw is always in sync so processTransaction reads the right value
+  const input = document.getElementById('paidInput');
+  if (input && document.activeElement !== input) input.value = val > 0 ? val : '';
 }
 
 function handlePaidKeydown(e) {
