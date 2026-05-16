@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- saved from url=(0044)file:///C:/Users/USER/Downloads/index_3.html -->
+<!-- saved from url=(0044)file:///C:/Users/USER/Downloads/index_1.html -->
 <html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -1676,7 +1676,7 @@
       <span class="logo-text">AJ Medina <span>POS</span></span>
     </div>
     <div class="header-right">
-      <span class="time-display" id="timeDisplay">12:31:52 AM</span>
+      <span class="time-display" id="timeDisplay">11:55:26 PM</span>
       <div class="user-badge" id="userBadge">
         <span class="user-badge-dot"></span>
         <span class="user-badge-name" id="userBadgeName">—</span>
@@ -2991,12 +2991,11 @@ function renderTransactionHistory() {
   const list  = document.getElementById('txnList');
   const badge = document.getElementById('txnCountBadge');
 
-  // Merge: sheet rows first (oldest→newest), then this-session rows on top.
-  // De-dupe by orderNum so a just-processed order doesn't appear twice.
+  // Merge session + sheet rows, de-dupe by orderNum, then sort newest-first by orderNum.
   const sessionOrderNums = new Set(transactions.map(t => String(t.orderNum)));
   const filteredSheet    = sheetTransactions.filter(t => !sessionOrderNums.has(String(t.orderNum)));
-  // Combined list newest-first: session rows already newest-first; sheet rows are oldest-first so reverse them.
-  combinedTxns = [...transactions, ...filteredSheet.reverse()];
+  combinedTxns = [...transactions, ...filteredSheet]
+    .sort((a, b) => Number(b.orderNum) - Number(a.orderNum));
 
   badge.textContent = `${combinedTxns.length} txn${combinedTxns.length !== 1 ? 's' : ''}`;
 
