@@ -2225,7 +2225,7 @@ let usersData = [];
 
 async function fetchUsers() {
   setUsersSyncStatus('⏳ Loading…');
-  if (!GAS_URL || GAS_URL === 'YOUR_GAS_WEB_APP_URL_HERE') {
+  if (!GAS_URL || GAS_URL === 'https://script.google.com/macros/s/AKfycbwQXDtqUeYc3ecaI4KLI6MHHLXkG1zNckF9VUMvXT9bCJ6us4cGSi5XSR12CjwGwA_G/exec') {
     renderUsersTable([]);
     setUsersSyncStatus('⚠️ No GAS URL set');
     return;
@@ -2336,7 +2336,7 @@ async function saveUser() {
 
   closeUserModal();
 
-  if (!GAS_URL || GAS_URL === 'YOUR_GAS_WEB_APP_URL_HERE') {
+  if (!GAS_URL || GAS_URL === 'https://script.google.com/macros/s/AKfycbwQXDtqUeYc3ecaI4KLI6MHHLXkG1zNckF9VUMvXT9bCJ6us4cGSi5XSR12CjwGwA_G/exec') {
     showToast('⚠️ No GAS URL — user not saved');
     return;
   }
@@ -2600,7 +2600,7 @@ async function confirmOrder() {
   closeModal();
 
   // Send to GAS backend
-  if (GAS_URL && GAS_URL !== 'YOUR_GAS_WEB_APP_URL_HERE') {
+  if (GAS_URL && GAS_URL !== 'https://script.google.com/macros/s/AKfycbwQXDtqUeYc3ecaI4KLI6MHHLXkG1zNckF9VUMvXT9bCJ6us4cGSi5XSR12CjwGwA_G/exec') {
     try {
       await fetch(GAS_URL, {
         method: 'POST',
@@ -2831,7 +2831,7 @@ async function autoConfirmTransaction(txn) {
 
   closeModal(); // close if open
 
-  if (GAS_URL && GAS_URL !== 'YOUR_GAS_WEB_APP_URL_HERE') {
+  if (GAS_URL && GAS_URL !== 'https://script.google.com/macros/s/AKfycbwQXDtqUeYc3ecaI4KLI6MHHLXkG1zNckF9VUMvXT9bCJ6us4cGSi5XSR12CjwGwA_G/exec') {
     try {
       await fetch(GAS_URL, {
         method: 'POST',
@@ -2858,7 +2858,7 @@ let sheetTransactions = [];   // rows fetched from the Transactions sheet
 let isFetchingSheet = false;
 
 async function fetchSheetTransactions() {
-  if (!GAS_URL || GAS_URL === 'YOUR_GAS_WEB_APP_URL_HERE') return;
+  if (!GAS_URL || GAS_URL === 'https://script.google.com/macros/s/AKfycbwQXDtqUeYc3ecaI4KLI6MHHLXkG1zNckF9VUMvXT9bCJ6us4cGSi5XSR12CjwGwA_G/exec') return;
 
   // Show a loading state
   const list = document.getElementById('txnList');
@@ -3018,7 +3018,7 @@ function switchToInventory(tab) {
 
 async function fetchInventory() {
   setInvSyncStatus('⏳ Syncing…');
-  if (!GAS_URL || GAS_URL === 'YOUR_GAS_WEB_APP_URL_HERE') {
+  if (!GAS_URL || GAS_URL === 'https://script.google.com/macros/s/AKfycbwQXDtqUeYc3ecaI4KLI6MHHLXkG1zNckF9VUMvXT9bCJ6us4cGSi5XSR12CjwGwA_G/exec') {
     renderInventoryTable([]);
     setInvSyncStatus('⚠️ No GAS URL set');
     return;
@@ -3179,7 +3179,7 @@ async function deleteInvItem(idx) {
   if (!confirm('Delete this inventory item?')) return;
   const row = inventoryData[idx];
 
-  if (!GAS_URL || GAS_URL === 'YOUR_GAS_WEB_APP_URL_HERE') {
+  if (!GAS_URL || GAS_URL === 'https://script.google.com/macros/s/AKfycbwQXDtqUeYc3ecaI4KLI6MHHLXkG1zNckF9VUMvXT9bCJ6us4cGSi5XSR12CjwGwA_G/exec') {
     inventoryData.splice(idx, 1);
     renderInventoryTable(inventoryData);
     showToast('🗑 Item removed locally');
