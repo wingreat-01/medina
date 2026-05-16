@@ -1630,6 +1630,82 @@
     transition: all 0.15s;
   }
   .txn-detail-close:hover { background: var(--surface3); border-color: var(--accent); }
+
+  /* ── Flavor Badge on product card ───────────────── */
+  .flavor-badge {
+    font-size: 0.62rem;
+    background: var(--accent);
+    color: #000;
+    border-radius: 20px;
+    padding: 2px 8px;
+    margin-top: 4px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+  }
+
+  /* ── Flavor Picker Modal ─────────────────────────── */
+  .flavor-modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.65);
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+  }
+  .flavor-modal-overlay.open { display: flex; }
+  .flavor-modal {
+    background: var(--surface2);
+    border: 1px solid var(--surface3);
+    border-radius: 18px;
+    padding: 28px 24px 24px;
+    width: min(360px, 90vw);
+    box-shadow: 0 8px 40px rgba(0,0,0,0.5);
+  }
+  .flavor-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text1);
+    margin-bottom: 20px;
+  }
+  .flavor-close-btn {
+    background: none;
+    border: none;
+    color: var(--text2);
+    font-size: 1.1rem;
+    cursor: pointer;
+    padding: 2px 6px;
+    border-radius: 6px;
+    transition: background 0.15s;
+  }
+  .flavor-close-btn:hover { background: var(--surface3); }
+  .flavor-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .flavor-btn {
+    background: var(--surface3);
+    border: 2px solid transparent;
+    color: var(--text1);
+    font-size: 1rem;
+    font-weight: 600;
+    font-family: 'DM Sans', sans-serif;
+    border-radius: 12px;
+    padding: 14px 0;
+    cursor: pointer;
+    transition: all 0.15s;
+    letter-spacing: 0.02em;
+  }
+  .flavor-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: rgba(255,200,0,0.08);
+  }
+  .flavor-btn:active { transform: scale(0.97); }
 </style>
 </head><body>
 
@@ -2107,6 +2183,17 @@
   </div>
 </div>
 
+<!-- Flavor Picker Modal -->
+<div class="flavor-modal-overlay" id="flavorModal" onclick="closeFlavorModal()">
+  <div class="flavor-modal" onclick="event.stopPropagation()">
+    <div class="flavor-modal-header">
+      <span id="flavorModalTitle">Choose a flavor</span>
+      <button class="flavor-close-btn" onclick="closeFlavorModal()">✕</button>
+    </div>
+    <div class="flavor-buttons" id="flavorButtons"></div>
+  </div>
+</div>
+
 <!-- Toast -->
 <div class="toast" id="toast">
   <span class="dot"></span>
@@ -2395,12 +2482,14 @@ async function deleteUserRow(idx) {
 }
 
 // ─── Product Data ───────────────────────────────────────────────
+const FRIES_FLAVORS = ['Cheese', 'BBQ', 'Sour Cream'];
+
 const PRODUCTS = {
   fries: [
     { id: 'f1', name: 'Combo (Kerito)', price: 35, emoji: '🍟' },
-    { id: 'f2', name: 'Small Fries',    price: 25, emoji: '🍟' },
-    { id: 'f3', name: 'Medium Fries',   price: 35, emoji: '🍟' },
-    { id: 'f4', name: 'Large Fries',    price: 45, emoji: '🍟' },
+    { id: 'f2', name: 'Small Fries',    price: 25, emoji: '🍟', hasFlavors: true },
+    { id: 'f3', name: 'Medium Fries',   price: 35, emoji: '🍟', hasFlavors: true },
+    { id: 'f4', name: 'Large Fries',    price: 45, emoji: '🍟', hasFlavors: true },
   ],
   drinks: [
     { id: 'd1', name: 'Small Drink', price: 10, emoji: '🥤' },
@@ -2464,15 +2553,52 @@ function renderProducts(category) {
     const card = document.createElement('div');
     card.className = 'product-card';
     card.id = 'card-' + product.id;
-    card.onclick = () => addToCart(product);
+    card.onclick = () => product.hasFlavors ? openFlavorPicker(product) : addToCart(product);
     card.innerHTML = `
       <div class="product-emoji">${product.emoji}</div>
       <div class="product-name">${product.name}</div>
       <div class="product-price">₱${product.price.toFixed(2)}</div>
+      ${product.hasFlavors ? '<div class="flavor-badge">🧀 Choose Flavor</div>' : ''}
       <div class="add-indicator">+</div>
     `;
     grid.appendChild(card);
   });
+}
+
+// ─── Flavor Picker ───────────────────────────────────────────────
+let _flavorTarget = null; // product waiting for flavor selection
+
+function openFlavorPicker(product) {
+  _flavorTarget = product;
+  const modal = document.getElementById('flavorModal');
+  document.getElementById('flavorModalTitle').textContent = `Choose flavor for ${product.name}`;
+  const btns = document.getElementById('flavorButtons');
+  btns.innerHTML = '';
+  FRIES_FLAVORS.forEach(flavor => {
+    const btn = document.createElement('button');
+    btn.className = 'flavor-btn';
+    btn.textContent = flavor;
+    btn.onclick = () => selectFlavor(flavor);
+    btns.appendChild(btn);
+  });
+  modal.classList.add('open');
+}
+
+function selectFlavor(flavor) {
+  document.getElementById('flavorModal').classList.remove('open');
+  if (!_flavorTarget) return;
+  const product = _flavorTarget;
+  _flavorTarget = null;
+  // Create a variant product keyed by id+flavor
+  const variantId = product.id + '_' + flavor.toLowerCase().replace(' ', '_');
+  const variantName = `${product.name} (${flavor})`;
+  const variant = { ...product, id: variantId, name: variantName };
+  addToCart(variant);
+}
+
+function closeFlavorModal() {
+  document.getElementById('flavorModal').classList.remove('open');
+  _flavorTarget = null;
 }
 
 // ─── Cart ────────────────────────────────────────────────────────
@@ -2560,9 +2686,13 @@ function updateCart() {
 }
 
 function updateCardState(productId, forceState) {
-  const card = document.getElementById('card-' + productId);
+  // For flavor variants (e.g. "f2_cheese"), highlight the base card ("f2")
+  const baseId = productId.includes('_') ? productId.split('_')[0] : productId;
+  const card = document.getElementById('card-' + baseId);
   if (!card) return;
-  const inCart = forceState !== undefined ? forceState : cart.some(i => i.product.id === productId);
+  const inCart = forceState !== undefined
+    ? forceState
+    : cart.some(i => i.product.id === productId || i.product.id.startsWith(baseId + '_') || i.product.id === baseId);
   card.classList.toggle('in-cart', inCart);
 }
 
