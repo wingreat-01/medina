@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- saved from url=(0042)file:///C:/Users/USER/Downloads/index.html -->
+<!-- saved from url=(0044)file:///C:/Users/USER/Downloads/index_1.html -->
 <html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -1676,7 +1676,7 @@
       <span class="logo-text">AJ Medina <span>POS</span></span>
     </div>
     <div class="header-right">
-      <span class="time-display" id="timeDisplay">10:22:48 PM</span>
+      <span class="time-display" id="timeDisplay">11:55:26 PM</span>
       <div class="user-badge" id="userBadge">
         <span class="user-badge-dot"></span>
         <span class="user-badge-name" id="userBadgeName">—</span>
@@ -1723,21 +1723,25 @@
       <div class="product-emoji">🍟</div>
       <div class="product-name">Combo (Kerito)</div>
       <div class="product-price">₱35.00</div>
+      
       <div class="add-indicator">+</div>
     </div><div class="product-card" id="card-f2">
       <div class="product-emoji">🍟</div>
       <div class="product-name">Small Fries</div>
       <div class="product-price">₱25.00</div>
+      <div class="flavor-badge">🧀 Choose Flavor</div>
       <div class="add-indicator">+</div>
     </div><div class="product-card" id="card-f3">
       <div class="product-emoji">🍟</div>
       <div class="product-name">Medium Fries</div>
       <div class="product-price">₱35.00</div>
+      <div class="flavor-badge">🧀 Choose Flavor</div>
       <div class="add-indicator">+</div>
     </div><div class="product-card" id="card-f4">
       <div class="product-emoji">🍟</div>
       <div class="product-name">Large Fries</div>
       <div class="product-price">₱45.00</div>
+      <div class="flavor-badge">🧀 Choose Flavor</div>
       <div class="add-indicator">+</div>
     </div></div>
       </div>
@@ -1749,11 +1753,13 @@
       <div class="product-emoji">🥤</div>
       <div class="product-name">Small Drink</div>
       <div class="product-price">₱10.00</div>
+      
       <div class="add-indicator">+</div>
     </div><div class="product-card" id="card-d2">
       <div class="product-emoji">🥤</div>
       <div class="product-name">Big Drink</div>
       <div class="product-price">₱20.00</div>
+      
       <div class="add-indicator">+</div>
     </div></div>
       </div>
@@ -2135,6 +2141,18 @@
   </div>
 </div>
 <script>
+// ─── Toast ───────────────────────────────────────────────────────
+let _toastTimer = null;
+function showToast(msg) {
+  const el  = document.getElementById('toast');
+  const txt = document.getElementById('toastMsg');
+  if (!el || !txt) return;
+  txt.textContent = msg;
+  el.classList.add('show');
+  if (_toastTimer) clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(() => el.classList.remove('show'), 2800);
+}
+
 // ─── Auth State ──────────────────────────────────────────────────
 let currentUser = null;   // { username, role }
 
